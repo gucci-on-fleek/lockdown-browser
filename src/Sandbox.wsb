@@ -1,0 +1,8 @@
+<Configuration> 
+    <MappedFolders>
+        <MappedFolder>
+            <HostFolder>{{HOST_FOLDER}}</HostFolder>
+            <ReadOnly>true</ReadOnly>
+        </MappedFolder>
+    </MappedFolders>
+</Configuration>
