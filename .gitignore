@@ -4,3 +4,5 @@
 *.exp
 *.pdb
 test-*
+build/**
+runtime_directory/**
