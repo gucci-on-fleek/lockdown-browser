@@ -37,7 +37,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
         DetourTransactionBegin();
         DetourUpdateThread(GetCurrentThread());
-        DetourAttach(&(PVOID &)Original_GetSystemMetrics, Hooked_GetSystemMetrics);
+        DetourAttach(&(PVOID &)Original_GetSystemMetrics, Hooked_GetSystemMetrics); // This is where the magic happens
         DetourTransactionCommit();
     }
     else if (fdwReason == DLL_PROCESS_DETACH)

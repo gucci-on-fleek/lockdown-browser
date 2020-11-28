@@ -47,17 +47,17 @@ function build_detours {
 function build_hook {
     mkdir './build' -Force
     pushd build
-    cl '/EHsc' '/LD' '/Fe:GetSystemMetrics-Hook.dll' '../src/GetSystemMetrics-Hook.cpp' '/I../Detours/include' '/link' '/nodefaultlib:oldnames.lib' '/export:DetourFinishHelperProcess,@1,NONAME' '/export:GetSystemMetrics' '../Detours\lib.X86\detours.lib' '../Detours\lib.X86\syelog.lib' 'user32.lib'
+    cl '/EHsc' '/LD' '/Fe:GetSystemMetrics-Hook.dll' '../src/GetSystemMetrics-Hook.cpp' '/I../Detours/include' '/link' '/nodefaultlib:oldnames.lib' '/export:DetourFinishHelperProcess,@1,NONAME' '/export:GetSystemMetrics' '../Detours\lib.X86\detours.lib' '../Detours\lib.X86\syelog.lib' 'user32.lib' # Most of these are pretty standard VS C++ compiler options, but of note is "/export:DetourFinishHelperProcess,@1,NONAME". The program will not be functional without this argument, but it isn't that well documented.
     popd
 }
 
 function build_sandbox {
-    (Get-Content ./src/Sandbox.wsb).replace('{{HOST_FOLDER}}', $PSScriptRoot + '\runtime_directory') | Set-Content ./build/Sandbox.wsb
+    (Get-Content ./src/Sandbox.wsb).replace('{{HOST_FOLDER}}', $PSScriptRoot + '\runtime_directory') | Set-Content ./build/Sandbox.wsb # Sadly, the Sandbox doesn't support relative host paths, so we have to find-and-replace at build time.
 }
 
 function copy_files {
     pushd runtime_directory
-    cp ../Detours/bin.X86/withdll.exe .
+    cp ../Detours/bin.X86/withdll.exe . # This is the program that actually injects the DLL
     cp ../build/GetSystemMetrics-Hook.dll .
     cp ../build/Sandbox.wsb .
     popd

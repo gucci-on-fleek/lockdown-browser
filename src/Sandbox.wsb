@@ -11,6 +11,6 @@
         </MappedFolder>
     </MappedFolders>
     <LogonCommand>
-        <Command>C:\Users\wdagutilityaccount\Desktop\runtime_directory\sandbox_run.ps1</Command>
+        <Command>powershell.exe -ExecutionPolicy Bypass -File C:\Users\wdagutilityaccount\Desktop\runtime_directory\sandbox_run.ps1</Command>
     </LogonCommand>
 </Configuration>
