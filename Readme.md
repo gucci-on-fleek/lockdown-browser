@@ -6,6 +6,7 @@
 # _Lockdown Browser_ in _Windows Sandbox_
 
 ![A demonstration of the software in action](docs/Example_1.png)
+[View Demo Video](https://github.com/gucci-on-fleek/lockdown-browser/raw/master/docs/Example_2.webm)
 
 ## What is this?
 
