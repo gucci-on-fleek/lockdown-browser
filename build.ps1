@@ -29,6 +29,7 @@ function initialize_vs {
 }
 
 function build_detours {
+    git submodule init
     git submodule update
     pushd Detours
     pushd src
