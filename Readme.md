@@ -1,4 +1,9 @@
-# Respondus Lockdown Browser in Windows Sandbox
+<!-- Lockdown Browser in Windows Sandbox
+     https://github.com/gucci-on-fleek/lockdown-browser
+     SPDX-License-Identifier: MPL-2.0+
+     SPDX-FileCopyrightText: 2020 gucci-on-fleek
+-->
+# Lockdown Browser in Windows Sandbox
 
 ## Building
 

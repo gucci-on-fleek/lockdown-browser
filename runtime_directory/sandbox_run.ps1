@@ -1,3 +1,8 @@
+# Lockdown Browser in Windows Sandbox
+# https://github.com/gucci-on-fleek/lockdown-browser
+# SPDX-License-Identifier: MPL-2.0+
+# SPDX-FileCopyrightText: 2020 gucci-on-fleek
+
 # DON'T RUN THIS ON YOUR REGULAR SYSTEM! IT WILL CAUSE **IRREVERSIBLE** DAMAGE
 # ok, it just deletes a few registry keys, but it's still not recommended
 
