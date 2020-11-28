@@ -5,6 +5,8 @@
 -->
 # _Lockdown Browser_ in _Windows Sandbox_
 
+![A demonstration of the software in action](docs/Example_1.png)
+
 ## What is this?
 
 This repo allows you to run the [_Respondus Lockdown Browser_](https://web.respondus.com/he/lockdownbrowser/) in an isolated sandbox. Normally, the _Browser_ blocks you from running it if it detects that it is being virtualized. However, this tool bypasses the detection, allowing us to virtualize it.
