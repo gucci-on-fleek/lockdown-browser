@@ -51,7 +51,6 @@ function build_sandbox {
 }
 
 function copy_files {
-    mkdir './runtime_directory'
     pushd runtime_directory
     cp ../Detours/bin.X86/withdll.exe .
     cp ../build/GetSystemMetrics-Hook.dll .

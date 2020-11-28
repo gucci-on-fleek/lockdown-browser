@@ -5,4 +5,7 @@
             <ReadOnly>true</ReadOnly>
         </MappedFolder>
     </MappedFolders>
+    <LogonCommand>
+        <Command>sandbox_run.ps1</Command>
+    </LogonCommand>
 </Configuration>
