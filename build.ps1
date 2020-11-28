@@ -40,7 +40,7 @@ function build_detours {
 
 
 function build_hook {
-    mkdir './build'
+    mkdir './build' -Force
     pushd build
     cl '/EHsc' '/LD' '/Fe:GetSystemMetrics-Hook.dll' '../src/GetSystemMetrics-Hook.cpp' '/I../Detours/include' '/link' '/nodefaultlib:oldnames.lib' '/export:DetourFinishHelperProcess,@1,NONAME' '/export:GetSystemMetrics' '../Detours\lib.X86\detours.lib' '../Detours\lib.X86\syelog.lib' 'user32.lib'
     popd
@@ -55,6 +55,7 @@ function copy_files {
     cp ../Detours/bin.X86/withdll.exe .
     cp ../build/GetSystemMetrics-Hook.dll .
     cp ../build/Sandbox.wsb .
+    popd
 }
 
 initialize_vs

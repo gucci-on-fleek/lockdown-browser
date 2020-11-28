@@ -6,6 +6,6 @@
         </MappedFolder>
     </MappedFolders>
     <LogonCommand>
-        <Command>sandbox_run.ps1</Command>
+        <Command>C:\Users\wdagutilityaccount\Desktop\runtime_directory\sandbox_run.ps1</Command>
     </LogonCommand>
 </Configuration>
