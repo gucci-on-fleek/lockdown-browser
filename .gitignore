@@ -3,4 +3,7 @@
 *.lib
 *.exp
 *.pdb
+*.dll
 test-*
+build/**
+runtime_directory/Sandbox.wsb
