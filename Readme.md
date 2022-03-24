@@ -52,7 +52,7 @@ Clone the repository, then run `build.ps1`. Then, [install the _Windows Sandbox_
 2. Download the _Respondus Lockdown Browser_ and place it in `runtime_directory\`.
 3. Double-click `Sandbox.wsb` (it’s in `runtime_directory\`)
 
-  (_Alternative_) If you want to pass your microphone and camera through to the _Lockdown Browser_, run `Sandbox-with-Microphone-Camera.wsb` instead.
+   (_Alternative_) If you want to pass your microphone and camera through to the _Lockdown Browser_, run `Sandbox-with-Microphone-Camera.wsb` instead.
 4. Wait. It’ll take about a minute, but eventually the _Lockdown Browser_ will open, completely automatically.
 
 ## Technical Details (How does it work?)
