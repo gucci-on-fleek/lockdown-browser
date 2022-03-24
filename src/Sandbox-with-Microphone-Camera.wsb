@@ -1,0 +1,18 @@
+<!-- Lockdown Browser in Windows Sandbox
+     https://github.com/gucci-on-fleek/lockdown-browser
+     SPDX-License-Identifier: MPL-2.0+
+     SPDX-FileCopyrightText: 2020 gucci-on-fleek
+-->
+<Configuration> 
+    <MappedFolders>
+        <MappedFolder>
+            <HostFolder>{{HOST_FOLDER}}</HostFolder>
+            <ReadOnly>true</ReadOnly>
+        </MappedFolder>
+    </MappedFolders>
+    <LogonCommand>
+        <Command>powershell.exe -ExecutionPolicy Bypass -File C:\Users\wdagutilityaccount\Desktop\runtime_directory\sandbox_run.ps1</Command>
+    </LogonCommand>
+    <AudioInput>Enable</AudioInput>
+    <VideoInput>Enable</VideoInput>
+</Configuration>
