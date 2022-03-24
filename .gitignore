@@ -7,3 +7,4 @@
 test-*
 build/**
 runtime_directory/Sandbox.wsb
+runtime_directory/Sandbox-with-Microphone-Camera.wsb

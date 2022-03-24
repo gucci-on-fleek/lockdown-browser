@@ -3,7 +3,7 @@
      SPDX-License-Identifier: MPL-2.0+
      SPDX-FileCopyrightText: 2020 gucci-on-fleek
 -->
-<Configuration> 
+<Configuration>
     <MappedFolders>
         <MappedFolder>
             <HostFolder>{{HOST_FOLDER}}</HostFolder>
@@ -13,4 +13,6 @@
     <LogonCommand>
         <Command>powershell.exe -ExecutionPolicy Bypass -File C:\Users\wdagutilityaccount\Desktop\runtime_directory\sandbox_run.ps1</Command>
     </LogonCommand>
+    <AudioInput>Disable</AudioInput>
+    <VideoInput>Disable</VideoInput>
 </Configuration>
