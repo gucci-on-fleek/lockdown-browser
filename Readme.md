@@ -51,11 +51,13 @@ Clone the repository, then run `build.ps1`. Then, [install the _Windows Sandbox_
 1. Build the project as shown above.
 2. Download the _Respondus Lockdown Browser_ and place it in `runtime_directory\`.
 3. Double-click `Sandbox.wsb` (it’s in `runtime_directory\`)
+
+  (_Alternative_) If you want to pass your microphone and camera through to the _Lockdown Browser_, run `Sandbox-with-Microphone-Camera.wsb` instead.
 4. Wait. It’ll take about a minute, but eventually the _Lockdown Browser_ will open, completely automatically.
 
 ## Technical Details (How does it work?)
 
-This repo consists of a few fairly simple tools cobbled together into a coherent package. 
+This repo consists of a few fairly simple tools cobbled together into a coherent package.
 
 The _Lockdown Browser_ detects a few BIOS-related registry keys in `HKLM:\HARDWARE\DESCRIPTION`. Therefore, `sandbox_run.ps1` deletes these keys/values.
 

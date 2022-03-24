@@ -7,7 +7,7 @@ cd $PSScriptRoot
 
 function initialize_vs {
     Install-Module VSSetup -Scope CurrentUser
-    pushd (Get-VSSetupInstance)[0].InstallationPath 
+    pushd (Get-VSSetupInstance)[0].InstallationPath
     $cmd_args = '/c .\VC\Auxiliary\Build\vcvars32.bat'
     $cmd_args += ' & set "'# 'set "' (with the trailing quotation mark) also shows the hidden variables
 
@@ -53,7 +53,9 @@ function build_hook {
 }
 
 function build_sandbox {
-    (Get-Content ./src/Sandbox.wsb).replace('{{HOST_FOLDER}}', $PSScriptRoot + '\runtime_directory') | Set-Content ./build/Sandbox.wsb # Sadly, the Sandbox doesn't support relative host paths, so we have to find-and-replace at build time.
+    # Sadly, the Sandbox doesn't support relative host paths, so we have to find-and-replace at build time.
+    (Get-Content ./src/Sandbox.wsb).replace('{{HOST_FOLDER}}', $PSScriptRoot + '\runtime_directory') | Set-Content ./build/Sandbox.wsb
+    (Get-Content ./src/Sandbox-with-Microphone-Camera.wsb).replace('{{HOST_FOLDER}}', $PSScriptRoot + '\runtime_directory') | Set-Content ./build/Sandbox-with-Microphone-Camera.wsb
 }
 
 function copy_files {
@@ -61,6 +63,7 @@ function copy_files {
     cp ../Detours/bin.X86/withdll.exe . # This is the program that actually injects the DLL
     cp ../build/GetSystemMetrics-Hook.dll .
     cp ../build/Sandbox.wsb .
+    cp ../build/Sandbox-with-Microphone-Camera.wsb .
     popd
 }
 
