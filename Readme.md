@@ -1,7 +1,7 @@
 <!-- Lockdown Browser in Windows Sandbox
      https://github.com/gucci-on-fleek/lockdown-browser
      SPDX-License-Identifier: MPL-2.0+ OR CC-BY-SA-4.0+
-     SPDX-FileCopyrightText: 2021 gucci-on-fleek
+     SPDX-FileCopyrightText: 2020-2022 gucci-on-fleek
 -->
 # _Lockdown Browser_ in _Windows Sandbox_
 
@@ -51,13 +51,17 @@ Clone the repository, then run `build.ps1`. Then, [install the _Windows Sandbox_
 1. Build the project as shown above.
 2. Download the _Respondus Lockdown Browser_ and place it in `runtime_directory\`.
 3. Double-click `Sandbox.wsb` (it’s in `runtime_directory\`)
+
+   (_Alternative_) If you want to pass your microphone and camera through to the _Lockdown Browser_, run `Sandbox-with-Microphone-Camera.wsb` instead.
 4. Wait. It’ll take about a minute, but eventually the _Lockdown Browser_ will open, completely automatically.
 
 ## Technical Details (How does it work?)
 
-This repo consists of a few fairly simple tools cobbled together into a coherent package. 
+This repo consists of a few fairly simple tools cobbled together into a coherent package.
 
 The _Lockdown Browser_ detects a few BIOS-related registry keys in `HKLM:\HARDWARE\DESCRIPTION`. Therefore, `sandbox_run.ps1` deletes these keys/values.
+
+When the _Lockdown Browser_ detects that `VmComputeAgent.exe` is running, it realizes that it is in a VM and refuses to launch. This program is a part of the _Windows Sandbox_, and cannot be stopped without crashing the VM.  However, when the _Browser_ checks all the running programs, it also opens and examines each image file. It turns out that if `sandbox_run.ps1` deletes the image file, the _Lockdown Browser_ acts as if the program isn't even running.
 
 The _Lockdown Browser_ calls `GetSystemMetrics(SM_REMOTESESSION)` to determine if it is running in and RDP session. Since this function is in `user32.dll`, there aren’t any trivial ways to fix this. However, [_Microsoft Detours_](https://github.com/microsoft/Detours) allows for you to intercept and replace any function in any `.dll`. A small hook (`GetSystemMetrics-Hook.cpp`) is used with `Detours` to intercept the function call and return a false value.
 

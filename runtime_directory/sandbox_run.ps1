@@ -1,7 +1,7 @@
 # Lockdown Browser in Windows Sandbox
 # https://github.com/gucci-on-fleek/lockdown-browser
 # SPDX-License-Identifier: MPL-2.0+
-# SPDX-FileCopyrightText: 2020 gucci-on-fleek
+# SPDX-FileCopyrightText: 2020-2022 gucci-on-fleek
 
 # DON'T RUN THIS ON YOUR REGULAR SYSTEM! IT WILL CAUSE **IRREVERSIBLE** DAMAGE
 # ok, it just deletes a few registry keys, but it's still not recommended
@@ -14,6 +14,12 @@ $lockdown_installer = (ls Lockdown*)[0]
 
 Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion
 rm HKLM:\HARDWARE\DESCRIPTION\System\BIOS
+
+# We're in a short-lived VM, so we can safely delete any necessary files
+$vmcompute_path = "C:\Windows\System32\VmComputeAgent.exe"
+takeown /f $vmcompute_path
+icacls $vmcompute_path /grant "Everyone:(D)"
+rm $vmcompute_path
 
 & $lockdown_installer /x "`"$lockdown_extract_dir`"" # Dumb installer needs a quoted path, even with no spaces. Also, we have to extract the program before we can even run a silent install.
 while (!(Test-Path $lockdown_extract_dir\id.txt)) {
