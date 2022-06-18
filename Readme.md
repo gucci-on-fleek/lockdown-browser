@@ -61,6 +61,8 @@ This repo consists of a few fairly simple tools cobbled together into a coherent
 
 The _Lockdown Browser_ detects a few BIOS-related registry keys in `HKLM:\HARDWARE\DESCRIPTION`. Therefore, `sandbox_run.ps1` deletes these keys/values.
 
+When the _Lockdown Browser_ detects that `VmComputeAgent.exe` is running, it realizes that it is in a VM and refuses to launch. This program is a part of the _Windows Sandbox_, and cannot be stopped without crashing the VM.  However, when the _Browser_ checks all the running programs, it also opens and examines each image file. It turns out that if `sandbox_run.ps1` deletes the image file, the _Lockdown Browser_ acts as if the program isn't even running.
+
 The _Lockdown Browser_ calls `GetSystemMetrics(SM_REMOTESESSION)` to determine if it is running in and RDP session. Since this function is in `user32.dll`, there aren’t any trivial ways to fix this. However, [_Microsoft Detours_](https://github.com/microsoft/Detours) allows for you to intercept and replace any function in any `.dll`. A small hook (`GetSystemMetrics-Hook.cpp`) is used with `Detours` to intercept the function call and return a false value.
 
 Because this tool runs in the _Windows Sandbox_, no state is retained between sessions. Therefore, this tool provides a scripted installer for the _Lockdown Browser_. The _Lockdown Browser_’s installer is a little tricky to script, so the installation is a little hacky, but it works. And again, the _Sandbox_ is completely isolated from the rest of your system, so the _Lockdown Browser_ cannot cause any harm to your computer.
