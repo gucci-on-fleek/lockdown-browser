@@ -4,7 +4,9 @@
 # SPDX-FileCopyrightText: 2020-2022 gucci-on-fleek
 
 # DON'T RUN THIS ON YOUR REGULAR SYSTEM! IT WILL CAUSE **IRREVERSIBLE** DAMAGE
-# ok, it just deletes a few registry keys, but it's still not recommended
+
+$ErrorActionPreference = "Stop"
+Set-StrictMode -Version 3
 
 cd $PSScriptRoot
 
