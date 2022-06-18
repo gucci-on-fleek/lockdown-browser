@@ -15,6 +15,12 @@ $lockdown_installer = (ls Lockdown*)[0]
 Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion
 rm HKLM:\HARDWARE\DESCRIPTION\System\BIOS
 
+# We're in a short-lived VM, so we can safely delete any necessary files
+$vmcompute_path = "C:\Windows\System32\VmComputeAgent.exe"
+takeown /f $vmcompute_path
+icacls $vmcompute_path /grant "Everyone:(D)"
+rm $vmcompute_path
+
 & $lockdown_installer /x "`"$lockdown_extract_dir`"" # Dumb installer needs a quoted path, even with no spaces. Also, we have to extract the program before we can even run a silent install.
 while (!(Test-Path $lockdown_extract_dir\id.txt)) {
     # This is the easiest way to detect if the installer is finished extracting
