@@ -36,7 +36,9 @@ Second, it is designed to prevent students from having to install invasive spywa
 ## Disclaimer
 This repository does not contain any materials belonging to Respondus Inc. You must supply your legally-acquired _Lockdown Browser_ `.exe` yourself. Any supporting and auxiliary files were either created by myself or gathered from various OSS projects with proper attribution. This project is not endorsed by Respondus Inc., nor by anyone except for myself.
 
-Also, Respondus has explicitly granted permission for this type of research. [From their website](https://archive.md/WTat2#54%):
+This project is intended merely as a proof-of-concept. While this tool could conceivably be used to facilitate cheating, this is not my intent. Any consequences of using this tool in a real exam are entirely your own responsibility.
+
+Also note that Respondus has explicitly granted permission for this type of research. [From their website](https://archive.md/WTat2#54%):
   > Hacker Tested, Market Approved – Hundreds of universities and schools around the world use LockDown Browser. It seems that at least one person (or team) at each institution makes it a quest to “break out” or beat the system. Some of the best minds have taken our software to task over the years, and we’ve addressed each issue that’s been raised. (Yes, **you have our blessing… go ahead and see if you can break it.**)
 
 ## System Requirements
@@ -55,6 +57,31 @@ Clone the repository, then run `build.ps1`. Then, [install the _Windows Sandbox_
    (_Alternative_) If you want to pass your microphone and camera through to the _Lockdown Browser_, run `Sandbox-with-Microphone-Camera.wsb` instead.
 4. Wait. It’ll take about a minute, but eventually the _Lockdown Browser_ will open, completely automatically.
 
+## Common Issues
+
+### The _Browser_ updates itself, then it stops working
+
+This tool does not support having the _Lockdown Browser_ update itself. Instead, whenever there is an update available for the browser, you should download a fresh installer from wherever you originally downloaded it from. The URL should be similar in format to:
+
+```text
+https://download.respondus.com/lockdown/download7.php?id=XXXXXXXXX
+```
+
+### You get a “Terminal Services” error message
+
+If the _Lockdown Browser_ fails to launch, **do not double-click** the file on the VM's desktop. Instead, open a PowerShell prompt inside the VM and run:
+
+```powershell
+cd C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
+.\withdll.exe /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
+```
+
+Of course, this is usually symptomatic of another issue, so please make sure that you have followed all the earlier instructions.
+
+### Other issues
+
+If you have made sure that you have followed all the instructions, please feel free to [open a new issue](https://github.com/gucci-on-fleek/lockdown-browser/issues/new/choose). Make sure to include any error messages and your _Lockdown Browser_ version.
+
 ## Technical Details (How does it work?)
 
 This repo consists of a few fairly simple tools cobbled together into a coherent package.
@@ -66,3 +93,9 @@ When the _Lockdown Browser_ detects that `VmComputeAgent.exe` is running, it rea
 The _Lockdown Browser_ calls `GetSystemMetrics(SM_REMOTESESSION)` to determine if it is running in and RDP session. Since this function is in `user32.dll`, there aren’t any trivial ways to fix this. However, [_Microsoft Detours_](https://github.com/microsoft/Detours) allows for you to intercept and replace any function in any `.dll`. A small hook (`GetSystemMetrics-Hook.cpp`) is used with `Detours` to intercept the function call and return a false value.
 
 Because this tool runs in the _Windows Sandbox_, no state is retained between sessions. Therefore, this tool provides a scripted installer for the _Lockdown Browser_. The _Lockdown Browser_’s installer is a little tricky to script, so the installation is a little hacky, but it works. And again, the _Sandbox_ is completely isolated from the rest of your system, so the _Lockdown Browser_ cannot cause any harm to your computer.
+
+## License
+
+All code is licensed under the [_Mozilla Public License_, version 2.0](https://www.mozilla.org/en-US/MPL/2.0/) or greater. The documentation is licensed under [CC-BY-SA, version 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode) or greater, in addition to the MPL. The _Detours_ submodule has an MIT licence as detailed in `Detours/LICENSE.md`.
+
+In addition to the formal licence terms, I would appreciate it if users do not distribute any binaries: I intend for this project to be merely a proof-of-concept, and any binaries circulating on the internet diminish this status. Of course, you are well within your rights to ignore this request, but I would appreciate it if you respect my wishes. Thanks!
