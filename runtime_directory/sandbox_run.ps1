@@ -34,4 +34,8 @@ kill -Name *Lockdown*
 & "$lockdown_extract_dir\setup.exe" /s "/f1$PSScriptRoot\setup.iss" "/f2$PSScriptRoot\..\setup.log" # If we don't give a log file path, this doesn't work
 Wait-Process -Name "setup"
 
+# Support use of the `rldb://` URL protocol
+New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
+Set-ItemProperty -Path "HKCR:\rldb\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
+
 ./withdll /d:GetSystemMetrics-Hook.dll $lockdown_runtime
