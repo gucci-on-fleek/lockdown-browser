@@ -15,4 +15,5 @@
     </LogonCommand>
     <AudioInput>Disable</AudioInput>
     <VideoInput>Disable</VideoInput>
+    <ProtectedClient>Enable</ProtectedClient>
 </Configuration>
