@@ -14,8 +14,8 @@ $lockdown_extract_dir = "C:\Windows\Temp\Lockdown"
 $lockdown_runtime = "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
 $lockdown_installer = (ls Lockdown*)[0]
 
-Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion
-rm HKLM:\HARDWARE\DESCRIPTION\System\BIOS
+Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion -ErrorAction Ignore
+rm HKLM:\HARDWARE\DESCRIPTION\System\BIOS -ErrorAction Ignore
 
 # We're in a short-lived VM, so we can safely delete any necessary files
 $vmcompute_path = "C:\Windows\System32\VmComputeAgent.exe"
