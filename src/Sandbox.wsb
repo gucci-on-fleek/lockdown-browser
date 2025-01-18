@@ -16,4 +16,6 @@
     <AudioInput>Disable</AudioInput>
     <VideoInput>Disable</VideoInput>
     <ProtectedClient>Enable</ProtectedClient>
+    <ClipboardRedirection>False</ClipboardRedirection>
+    <vGPU>Enable</vGPU>
 </Configuration>

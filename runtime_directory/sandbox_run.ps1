@@ -3,10 +3,16 @@
 # SPDX-License-Identifier: MPL-2.0+
 # SPDX-FileCopyrightText: 2020-2022 gucci-on-fleek
 
-# DON'T RUN THIS ON YOUR REGULAR SYSTEM! IT WILL CAUSE **IRREVERSIBLE** DAMAGE
+# DON'T RUN THIS ON YOUR REGULAR SYSTEM! IT WILL CAUSE **IRREVERSIBLE** DAMAGE. (Well it's been fixed, but don't try.)
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 3
+
+# Check if running as WDAGUtilityAccount (Sandbox)
+if ($env:USERNAME -ne "WDAGUtilityAccount") {
+    Write-Error "This script is intended to run only in Windows Sandbox. Exiting..."
+    exit 1
+}
 
 cd $PSScriptRoot
 
