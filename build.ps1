@@ -3,9 +3,13 @@
 # SPDX-License-Identifier: MPL-2.0+
 # SPDX-FileCopyrightText: 2020-2022 gucci-on-fleek
 
+$ErrorActionPreference = "Stop"
+Set-StrictMode -Version 3
+
 cd $PSScriptRoot
 
 function initialize_vs {
+    Set-PSRepository PSGallery -InstallationPolicy Trusted
     Install-Module VSSetup -Scope CurrentUser
     pushd (Get-VSSetupInstance)[0].InstallationPath
     $cmd_args = '/c .\VC\Auxiliary\Build\vcvars32.bat'

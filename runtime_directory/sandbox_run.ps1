@@ -3,8 +3,16 @@
 # SPDX-License-Identifier: MPL-2.0+
 # SPDX-FileCopyrightText: 2020-2022 gucci-on-fleek
 
-# DON'T RUN THIS ON YOUR REGULAR SYSTEM! IT WILL CAUSE **IRREVERSIBLE** DAMAGE
-# ok, it just deletes a few registry keys, but it's still not recommended
+# DON'T RUN THIS ON YOUR REGULAR SYSTEM! IT WILL CAUSE **IRREVERSIBLE** DAMAGE. (Well it's been fixed, but don't try.)
+
+$ErrorActionPreference = "Stop"
+Set-StrictMode -Version 3
+
+# Check if running as WDAGUtilityAccount (Sandbox)
+if ($env:USERNAME -ne "WDAGUtilityAccount") {
+    Write-Error "This script is intended to run only in Windows Sandbox. Exiting..."
+    exit 1
+}
 
 cd $PSScriptRoot
 
@@ -12,8 +20,8 @@ $lockdown_extract_dir = "C:\Windows\Temp\Lockdown"
 $lockdown_runtime = "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
 $lockdown_installer = (ls Lockdown*)[0]
 
-Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion
-rm HKLM:\HARDWARE\DESCRIPTION\System\BIOS
+Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion -ErrorAction Ignore
+rm HKLM:\HARDWARE\DESCRIPTION\System\BIOS -ErrorAction Ignore
 
 # We're in a short-lived VM, so we can safely delete any necessary files
 $vmcompute_path = "C:\Windows\System32\VmComputeAgent.exe"
@@ -31,5 +39,9 @@ kill -Name *Lockdown*
 
 & "$lockdown_extract_dir\setup.exe" /s "/f1$PSScriptRoot\setup.iss" "/f2$PSScriptRoot\..\setup.log" # If we don't give a log file path, this doesn't work
 Wait-Process -Name "setup"
+
+# Support use of the `rldb://` URL protocol
+New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
+Set-ItemProperty -Path "HKCR:\rldb\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
 
 ./withdll /d:GetSystemMetrics-Hook.dll $lockdown_runtime
