@@ -23,7 +23,8 @@ int WINAPI Hooked_GetSystemMetrics(int nIndex)
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
     /* This is all pretty much copied from the Detours docs. I can't really pretend to understand most of it */
-    (void)hinstDLL; // Discard the unused parmeters
+    // I also can't pretend I understand this, but hey error checking would be nice - Voidless
+    (void)hinstDLL; // Discard the unused parameters
     (void)lpvReserved;
 
     if (DetourIsHelperProcess())
@@ -36,16 +37,40 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
         DetourRestoreAfterWith();
 
         DetourTransactionBegin();
-        DetourUpdateThread(GetCurrentThread());
-        DetourAttach(&(PVOID &)Original_GetSystemMetrics, Hooked_GetSystemMetrics); // This is where the magic happens
-        DetourTransactionCommit();
+        if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR)
+        {
+            DetourTransactionAbort();
+            return FALSE;
+        }
+        if (DetourAttach(&(PVOID &)Original_GetSystemMetrics, Hooked_GetSystemMetrics) != NO_ERROR)
+        {
+            DetourTransactionAbort();
+            return FALSE;
+        }
+        if (DetourTransactionCommit() != NO_ERROR)
+        {
+            DetourTransactionAbort();
+            return FALSE;
+        }
     }
     else if (fdwReason == DLL_PROCESS_DETACH)
     {
         DetourTransactionBegin();
-        DetourUpdateThread(GetCurrentThread());
-        DetourDetach(&(PVOID &)Original_GetSystemMetrics, Hooked_GetSystemMetrics);
-        DetourTransactionCommit();
+        if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR)
+        {
+            DetourTransactionAbort();
+            return FALSE;
+        }
+        if (DetourDetach(&(PVOID &)Original_GetSystemMetrics, Hooked_GetSystemMetrics) != NO_ERROR)
+        {
+            DetourTransactionAbort();
+            return FALSE;
+        }
+        if (DetourTransactionCommit() != NO_ERROR)
+        {
+            DetourTransactionAbort();
+            return FALSE;
+        }
     }
     return TRUE;
 }
