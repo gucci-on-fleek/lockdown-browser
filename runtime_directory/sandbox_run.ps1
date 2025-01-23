@@ -20,28 +20,41 @@ $lockdown_extract_dir = "C:\Windows\Temp\Lockdown"
 $lockdown_runtime = "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
 $lockdown_installer = (ls Lockdown*)[0]
 
-Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion -ErrorAction Ignore
-rm HKLM:\HARDWARE\DESCRIPTION\System\BIOS -ErrorAction Ignore
-
-# We're in a short-lived VM, so we can safely delete any necessary files
-$vmcompute_path = "C:\Windows\System32\VmComputeAgent.exe"
-takeown /f $vmcompute_path
-icacls $vmcompute_path /grant "Everyone:(D)"
-rm $vmcompute_path
-
-& $lockdown_installer /x "`"$lockdown_extract_dir`"" # Dumb installer needs a quoted path, even with no spaces. Also, we have to extract the program before we can even run a silent install.
-while (!(Test-Path $lockdown_extract_dir\id.txt)) {
-    # This is the easiest way to detect if the installer is finished extracting
-    sleep 0.2
+function Remove-BIOSInfo {
+    Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion -ErrorAction Ignore
+    Remove-Item -Path "HKLM:\HARDWARE\DESCRIPTION\System\BIOS" -ErrorAction Ignore
 }
-sleep 1
-kill -Name *Lockdown*
 
-& "$lockdown_extract_dir\setup.exe" /s "/f1$PSScriptRoot\setup.iss" "/f2$PSScriptRoot\..\setup.log" # If we don't give a log file path, this doesn't work
-Wait-Process -Name "setup"
+function Remove-VmComputeAgent {
+    $vmcompute_path = "C:\Windows\System32\VmComputeAgent.exe"
+    takeown /f $vmcompute_path
+    icacls $vmcompute_path /grant "Everyone:(D)"
+    Remove-Item -Path $vmcompute_path
+}
 
-# Support use of the `rldb://` URL protocol
-New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
-Set-ItemProperty -Path "HKCR:\rldb\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
+function Extract-LockdownBrowser {
+    & $lockdown_installer /x "`"$lockdown_extract_dir`"" # Dumb installer needs a quoted path, even with no spaces. Also, we have to extract the program before we can even run a silent install.
+    while (!(Test-Path "$lockdown_extract_dir\id.txt")) {
+        # This is the easiest way to detect if the installer is finished extracting
+        Start-Sleep -Seconds 0.2
+    }
+    Start-Sleep -Seconds 1
+    Stop-Process -Name *Lockdown* -ErrorAction Ignore
+}
 
-./withdll /d:GetSystemMetrics-Hook.dll $lockdown_runtime
+function Install-LockdownBrowser {
+    & "$lockdown_extract_dir\setup.exe" /s "/f1$PSScriptRoot\setup.iss" "/f2$PSScriptRoot\..\setup.log" # If we don't give a log file path, this doesn't work
+    Wait-Process -Name "setup"
+}
+
+function Register-URLProtocol {
+    New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
+    Set-ItemProperty -Path "HKCR:\rldb\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
+}
+
+# Main script execution
+Remove-BIOSInfo
+Remove-VmComputeAgent
+Extract-LockdownBrowser
+Install-LockdownBrowser
+Register-URLProtocol
