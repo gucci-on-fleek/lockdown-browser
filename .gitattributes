@@ -2,6 +2,6 @@
 # https://github.com/gucci-on-fleek/lockdown-browser
 # SPDX-License-Identifier: MPL-2.0+ OR CC-BY-SA-4.0+
 # SPDX-FileCopyrightText: 2020-2025 gucci-on-fleek and Voidless7125
-[submodule "Detours"]
-	path = Detours
-	url = https://github.com/microsoft/Detours.git
+
+# Auto detect text files and perform LF normalization
+* text=auto
