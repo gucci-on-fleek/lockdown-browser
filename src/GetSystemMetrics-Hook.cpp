@@ -1,7 +1,7 @@
 /* Lockdown Browser in Windows Sandbox
  * https://github.com/gucci-on-fleek/lockdown-browser
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2020-2022 gucci-on-fleek
+ * SPDX-FileCopyrightText: 2020-2025 gucci-on-fleek and Voidless7125
  */
 #include <windows.h>
 #include <detours.h>
