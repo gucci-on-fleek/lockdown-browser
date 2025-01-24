@@ -14,11 +14,11 @@ if ($env:USERNAME -ne "WDAGUtilityAccount") {
     exit 1
 }
 
-cd $PSScriptRoot
+Set-Location $PSScriptRoot
 
 $lockdown_extract_dir = "C:\Windows\Temp\Lockdown"
 $lockdown_runtime = "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
-$lockdown_installer = (ls Lockdown*)[0]
+$lockdown_installer = (Get-ChildItem Lockdown*)[0]
 
 function Remove-BIOSInfo {
     Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion -ErrorAction Ignore
@@ -32,7 +32,7 @@ function Remove-VmComputeAgent {
     Remove-Item -Path $vmcompute_path
 }
 
-function Extract-LockdownBrowser {
+function Expand-LockdownBrowser {
     & $lockdown_installer /x "`"$lockdown_extract_dir`"" # Dumb installer needs a quoted path, even with no spaces. Also, we have to extract the program before we can even run a silent install.
     while (!(Test-Path "$lockdown_extract_dir\id.txt")) {
         # This is the easiest way to detect if the installer is finished extracting
@@ -52,9 +52,20 @@ function Register-URLProtocol {
     Set-ItemProperty -Path "HKCR:\rldb\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
 }
 
+function New-RunLockdownBrowserScript {
+    Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass -Force;
+    $scriptContent = @'
+cd C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
+.\withdll.exe /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
+'@
+    $desktopPath = [System.Environment]::GetFolderPath('Desktop')
+    $scriptPath = Join-Path -Path $desktopPath -ChildPath 'runlockdownbrowser.ps1'
+    Set-Content -Path $scriptPath -Value $scriptContent
+}
+
 # Main script execution
 Remove-BIOSInfo
 Remove-VmComputeAgent
-Extract-LockdownBrowser
+Expand-LockdownBrowser
 Install-LockdownBrowser
-Register-URLProtocol
+New-RunLockdownBrowserScript
