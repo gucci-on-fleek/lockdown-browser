@@ -17,7 +17,6 @@ if ($env:USERNAME -ne "WDAGUtilityAccount") {
 Set-Location $PSScriptRoot
 
 $lockdown_extract_dir = "C:\Windows\Temp\Lockdown"
-$lockdown_runtime = "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
 $lockdown_installer = (Get-ChildItem Lockdown*)[0]
 
 function Remove-BIOSInfo {
@@ -47,6 +46,17 @@ function Install-LockdownBrowser {
     Wait-Process -Name "setup"
 }
 
+function Install-LockdownBrowserOEM {
+    & $lockdown_installer /s /r
+    $test = "C:\Program Files (x86)\Respondus\LockDown Browser OEM\"
+    while (!(Test-Path "$test/am.pak")) {
+        # This is the easiest way to detect if the installer is finished extracting
+        Start-Sleep -Seconds 0.2
+    }
+    Start-Sleep -Seconds 1
+    Stop-Process -Name *Setup* -ErrorAction Ignore
+}
+
 function Register-URLProtocol {
     New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
     Set-ItemProperty -Path "HKCR:\rldb\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
@@ -59,13 +69,22 @@ cd C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
 .\withdll.exe /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
 '@
     $desktopPath = [System.Environment]::GetFolderPath('Desktop')
-    $scriptPath = Join-Path -Path $desktopPath -ChildPath 'runlockdownbrowser.ps1'
+    $scriptPath = Join-Path -Path $desktopPath -ChildPath 'runlockdownbrowserwithoutlink.ps1'
     Set-Content -Path $scriptPath -Value $scriptContent
 }
 
 # Main script execution
 Remove-BIOSInfo
 Remove-VmComputeAgent
-Expand-LockdownBrowser
-Install-LockdownBrowser
-New-RunLockdownBrowserScript
+
+if ($lockdown_installer.Name -like "LockDownBrowserOEMSetup.exe") {
+    $lockdown_runtime = "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe"
+    Install-LockdownBrowserOEM
+}
+else {
+    $lockdown_runtime = "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
+    Expand-LockdownBrowser
+    Install-LockdownBrowser
+    Register-URLProtocol
+    New-RunLockdownBrowserScript
+}
