@@ -27,12 +27,9 @@ else {
 
 }
 
-function Remove-BIOSInfo {
+function Remove-SystemInfo {
     Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion -ErrorAction Ignore
     Remove-Item -Path "HKLM:\HARDWARE\DESCRIPTION\System\BIOS" -ErrorAction Ignore
-}
-
-function Remove-VmComputeAgent {
     $vmcompute_path = "C:\Windows\System32\VmComputeAgent.exe"
     takeown /f $vmcompute_path
     icacls $vmcompute_path /grant "Everyone:(D)"
@@ -67,7 +64,6 @@ function Install-LockdownBrowser {
 function Register-URLProtocol {
     if ($lockdown_installer.Name -like "LockDownBrowserOEMSetup.exe") {
         # This is implmented *per OEM* so we need a custom implementation for each OEM
-        # The plan is to have another powershell script that will ask for the url and you can just paste it in.
     }
     else {
         New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
@@ -77,11 +73,7 @@ function Register-URLProtocol {
 }
 
 function New-RunLockdownBrowserScript {
-    Write-Host "Creating script to run Lockdown Browser without URL..."
     Set-ExecutionPolicy -ExecutionPolicy Bypass -Force
-    $desktopPath = [System.Environment]::GetFolderPath('Desktop')
-    $scriptPath = Join-Path -Path $desktopPath -ChildPath 'runlockdownbrowserwithoutlink.ps1'
-
     if ($lockdown_installer.Name -like "LockDownBrowserOEMSetup.exe") {
 
         $ScriptContent = @'
@@ -95,21 +87,22 @@ $lockdown_runtime = "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownB
 
 # Change directory and run the command
 cd "C:\Users\WDAGUtilityAccount\Desktop\runtime_directory"
-./withdll /d:GetSystemMetrics-Hook.dll $lockdown_runtime "$url"
+./withdll /d:GetSystemMetrics-Hook.dll $lockdown_runtime $url
 '@
     }
     else {
         $scriptContent = @'
 cd C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
-.\withdll.exe /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
+.\withdll.exe /d:GetSystemMetrics-Hook.dll $lockdown_runtime
 '@
     }
+    $desktopPath = [System.Environment]::GetFolderPath('Desktop')
+    $scriptPath = Join-Path -Path $desktopPath -ChildPath 'runlockdownbrowserwithoutlink.ps1'
     Set-Content -Path $scriptPath -Value $scriptContent
 }
 
 # Main script execution
-Remove-BIOSInfo
-Remove-VmComputeAgent
+Remove-SystemInfo
 Install-LockdownBrowser
 Register-URLProtocol
 New-RunLockdownBrowserScript
