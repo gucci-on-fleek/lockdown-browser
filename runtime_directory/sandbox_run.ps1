@@ -48,7 +48,7 @@ function Remove-SystemInfo {
     Remove-Item -Path "HKLM:\HARDWARE\DESCRIPTION\System\BIOS" -ErrorAction Ignore
     $vmcompute_path = "C:\Windows\System32\VmComputeAgent.exe"
     takeown /f $vmcompute_path
-    Start-Process -FilePath "icacls" -ArgumentList "$vmcompute_path /grant `"Everyone:(D)`"" -Wait
+    icacls $vmcompute_path /grant "Everyone:(D)"
     Remove-Item -Path $vmcompute_path -ErrorAction Ignore
 }
 
