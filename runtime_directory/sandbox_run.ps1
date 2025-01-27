@@ -57,14 +57,16 @@ function Install-LockdownBrowser {
 }
 
 function Register-URLProtocol {
+    New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
     if ($lockdown_installer.Name -like "LockDownBrowserOEMSetup.exe") {
-        # This is implmented *per OEM* so we need a custom implementation for each OEM
+        $urls = @("anst", "cllb", "ibz", "ielb", "jnld", "jzl", "ldb", "ldb1", "pcgs", "plb", "pstg", "rzi", "uwfb", "xmxg")
+        foreach ($url in $urls) {
+            Set-ItemProperty -Path "HKCR:\$url\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
+        }
     }
     else {
-        New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
         Set-ItemProperty -Path "HKCR:\rldb\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
     }
-   
 }
 
 function New-RunLockdownBrowserScript {
