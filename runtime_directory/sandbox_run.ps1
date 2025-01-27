@@ -39,13 +39,8 @@ function Remove-SystemInfo {
 function Install-LockdownBrowser {
     if ($lockdown_installer.Name -like "LockDownBrowserOEMSetup.exe") {
         & $lockdown_installer /s /r
-        $test = "C:\Program Files (x86)\Respondus\LockDown Browser OEM\"
-        while (!(Test-Path "$test/locales/am.pak")) {
-            # This is the easiest way to detect if the installer is finished extracting
-            Start-Sleep -Seconds 0.2
-        }
-        Start-Sleep -Seconds 1
-        Stop-Process -Name *Setup* -ErrorAction Ignore
+        # OEM intaller is random files being added, so we can't wait for a specific file to be created.
+        # This broke *all my testing grr*
     }
     else {
         & $lockdown_installer /x "`"$lockdown_extract_dir`"" # Dumb installer needs a quoted path, even with no spaces. Also, we have to extract the program before we can even run a silent install.
@@ -79,11 +74,11 @@ function New-RunLockdownBrowserScript {
         $ScriptContent = @'
 
 # Ask for the URL
-$url = Read-Host -Prompt "Please enter the URL (BROKEN, Quotes will not be added. Launch manually.)"
+$url = Read-Host -Prompt "Please enter the URL (Working! You don't need "")"
 
 Write-Host "Running Lockdown Browser with URL: $url"
 # Define the lockdown runtime path
-$lockdown_runtime = "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
+$lockdown_runtime = "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe"
 
 # Change directory and run the command
 cd "C:\Users\WDAGUtilityAccount\Desktop\runtime_directory"
