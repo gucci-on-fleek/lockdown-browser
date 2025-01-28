@@ -58,6 +58,7 @@ function Install-LockdownBrowser {
         Write-Log "Installing Lockdown Browser OEM..."
         & $lockdown_installer /s /r
         Write-Log "OEM installer executed."
+        Wait-Process -Name *setup*
     }
     else {
         & $lockdown_installer /x "`"$lockdown_extract_dir`""
@@ -115,22 +116,19 @@ function Register-URLProtocol {
 function New-RunLockdownBrowserScript {
     Write-Log "Creating run script on desktop..."
     if ($lockdown_installer.Name -like "LockDownBrowserOEMSetup.exe") {
-        $script_content = @"
+        $script_content = @'
 # Ask for the URL
 $url = Read-Host -Prompt "Please enter the URL"
-Write-Host "Running Lockdown Browser with URL: $url"
-# Define the lockdown runtime path (Need to use quoted path, cannot do it with system variables)
-$lockdown_runtime = "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe"
 # Change directory and run the command
-cd "C:\Users\WDAGUtilityAccount\Desktop\runtime_directory"
-./withdll /d:GetSystemMetrics-Hook.dll $lockdown_runtime $url
-"@
+Set-Location "C:\Users\WDAGUtilityAccount\Desktop\runtime_directory"
+./withdll /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe" $url
+'@
     }
     else {
-        $script_content = @"
-cd C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
-.\withdll.exe /d:GetSystemMetrics-Hook.dll $lockdown_runtime
-"@
+        $script_content = @'
+Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
+.\withdll.exe /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
+'@
     }
     $script_path = Join-Path -Path $desktop_path -ChildPath "runlockdownbrowser.ps1"
     Set-Content -Path $script_path -Value $script_content
