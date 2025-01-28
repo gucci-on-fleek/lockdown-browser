@@ -10,26 +10,31 @@
 <video src="https://user-images.githubusercontent.com/49086429/143725579-42cd9f47-4462-4a54-aa8a-8419bfdebb68.mp4" title="Demonstration video of the software."></video> <!-- Licence for Example_2.webm: MPL-2.0+ OR CC-BY-SA-4.0+ --></details>
 
 ## What is this?
+
 This repo allows you to run the [_Respondus Lockdown Browser_](https://web.respondus.com/he/lockdownbrowser/) in an isolated sandbox, completely bypassing its “security measures.” Usually, the Lockdown Browser blocks you from running it if it detects that it is being virtualized. However, this tool bypasses the detection, allowing us to virtualize it.
 
 ## Why the _Lockdown Browser_ is bad
+
 First, I am uncomfortable installing random software on my computer. I only install software that is open source or from a trusted publisher, and this software is neither.
 
 Second, the _Lockdown Browser_ is essentially indistinguishable from malware. Read the following list of documented behaviors and see how similar these behaviors are to actual malware.
-  - They recommend [disabling your antivirus software](https://archive.md/rj0Z7#73%).
-  - The only way to exit it is to [physically power off your computer](https://archive.md/cp1L3#34%).
-  - It [disables the Task Manager](https://archive.md/HgFeS#33%).
-  - It [tracks all open software](https://archive.md/4OFCQ#33%).
+
+- They recommend [disabling your antivirus software](https://archive.md/rj0Z7#73%).
+- The only way to exit it is to [physically power off your computer](https://archive.md/cp1L3#34%).
+- It [disables the Task Manager](https://archive.md/HgFeS#33%).
+- It [tracks all open software](https://archive.md/4OFCQ#33%).
 
 And, of course, there are privacy issues. Cheating is no doubt an issue, but school-mandated surveillance software is a step too far. This is the most significant issue. I strongly recommend reading the following links from the EFF, a non-profit that focuses on defending digital privacy.
-  - _[Proctoring Apps Subject Students to Unnecessary Surveillance](https://www.eff.org/deeplinks/2020/08/proctoring-apps-subject-students-unnecessary-surveillance)_
-  - _[Students Are Pushing Back Against Proctoring Surveillance Apps](https://www.eff.org/deeplinks/2020/09/students-are-pushing-back-against-proctoring-surveillance-apps)_
-  - _[Senate Letter to Proctoring Companies](https://www.eff.org/document/senate-letter-proctoring-companies-12-3-2020)_
+
+- _[Proctoring Apps Subject Students to Unnecessary Surveillance](https://www.eff.org/deeplinks/2020/08/proctoring-apps-subject-students-unnecessary-surveillance)_
+- _[Students Are Pushing Back Against Proctoring Surveillance Apps](https://www.eff.org/deeplinks/2020/09/students-are-pushing-back-against-proctoring-surveillance-apps)_
+- _[Senate Letter to Proctoring Companies](https://www.eff.org/document/senate-letter-proctoring-companies-12-3-2020)_
 
 ## Purpose
+
 This tool is **not designed to facilitate cheating**. Instead, I built it for two purposes:
 
-First, it is designed to show school administrators that the _Lockdown Browser_ is entirely ineffective. Respondus claims that it is the [“gold standard”](https://web.respondus.com/he/lockdownbrowser/) and that it cannot be bypassed, but that is false. I, a random University student, bypassed the _Lockdown Browser_ in **a single day**. This removes all of the (supposed) benefits of the _Lockdown Browser_, and thus makes [the issues](#Why-the-Lockdown-Browser-is-bad) look even worse.
+First, it is designed to show school administrators that the _Lockdown Browser_ is entirely ineffective. Respondus claims that it is the [“gold standard”](https://web.respondus.com/he/lockdownbrowser/) and that it cannot be bypassed, but that is false. I, a random University student, bypassed the _Lockdown Browser_ in **a single day**. This removes all of the (supposed) benefits of the _Lockdown Browser_, and thus makes [the issues](#why-the-lockdown-browser-is-bad) look even worse.
 
 Second, it is designed to prevent students from having to install invasive spyware on their personal computers. Sometimes, administrators won't listen and will still force the _Lockdown Browser_ on their students. This tool allows you to run the _Lockdown Browser_ in an isolated sandbox, thus preventing the _Lockdown Browser_ from modifying or spying on the rest of your computer. This tool is designed to run in the _Windows Sandbox_, but users should be able to adapt it to run in other Virtual Machine software quickly. This is especially valuable for Linux users since the _Lockdown Browser_ does not run on Linux and otherwise refuses to run in a VM.
 
@@ -45,16 +50,19 @@ Also, I'd like to point out that Respondus has explicitly granted permission for
   > Hacker Tested, Market Approved – Hundreds of universities and schools around the world use LockDown Browser. It seems that at least one person (or team) at each institution makes it a quest to “break out” or beat the system. Some of the best minds have taken our software to task over the years, and we’ve addressed each issue that’s been raised. (Yes, **you have our blessing… go ahead and see if you can break it.**)
 
 ## System Requirements
-  - Windows 10 **Pro** or **Enterprise**
-  - [Visual Studio C++ Tools](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools)
-  - (Make sure to include the “MSVC C++ build tools” and “Windows SDK” components.)
-  - ![Visual Studio installer screenshot](docs/Visual_Studio_Installer.png)
-  - [git](https://git-scm.com/download/win)
+
+- Windows 10 **Pro** or **Enterprise**
+- [Visual Studio C++ Tools](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools)
+- (Make sure to include the “MSVC C++ build tools” and “Windows SDK” components.)
+- ![Visual Studio installer screenshot](docs/Visual_Studio_Installer.png)
+- [git](https://git-scm.com/download/win)
 
 ## Building
+
 Make sure to **clone** the repository and run `build.ps1`. Then, [install the _Windows Sandbox_](https://www.howtogeek.com/399290/how-to-use-windows-10s-new-sandbox-to-safely-test-apps/). That's it!
 
 ## Running
+
 1. Build the project as shown above.
 2. Download the _Respondus Lockdown Browser_ and place it in `runtime_directory\`.
 3. Double-click `Sandbox.wsb` (it’s in `runtime_directory\`)
