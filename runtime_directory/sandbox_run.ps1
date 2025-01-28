@@ -62,7 +62,7 @@ function Install-LockdownBrowser {
     }
     else {
         & $lockdown_installer /x "`"$lockdown_extract_dir`""
-        # Dumb installer needs a quoted path, even with no spaces. 
+        # Dumb installer needs a quoted path, even with no spaces.
         # Also, we have to extract the program before we can even run a silent install.
         Write-Log "Extracting Lockdown Browser..."
         Wait-Process -Name *Lockdown* # For some weird reason, if the extracter gets killed the installer can fail sometimes on missing a file.
@@ -97,7 +97,7 @@ function Register-URLProtocol {
                 Write-Log "Successfully set item property for URL protocol $_."
             }
             catch {
-                # I had some interminitent errors, so I want them logged for debugging.
+                # I had some intermittent errors, so I want them logged for debugging.
                 Write-Log "Failed to set item property for URL protocol $_. Error: $_"
             }
         }
@@ -109,7 +109,7 @@ function Register-URLProtocol {
         }
         catch {
             Write-Log "Failed to set item property for URL protocol rldb. Error: $_"
-        }    
+        }
     }
 }
 
