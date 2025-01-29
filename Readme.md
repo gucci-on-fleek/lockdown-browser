@@ -32,7 +32,7 @@ And, of course, there are privacy issues. Cheating is no doubt an issue, but sch
 
 ## Purpose
 
-This tool is **not designed to facilitate cheating**. Instead, I built it for two purposes:
+This tool is **not designed to facilitate cheating**. Instead, I built it for three purposes:
 
 First, it is designed to show school administrators that the _Lockdown Browser_ is entirely ineffective. Respondus claims that it is the [“gold standard”](https://web.respondus.com/he/lockdownbrowser/) and that it cannot be bypassed, but that is false. I, a random University student, bypassed the _Lockdown Browser_ in **a single day**. This removes all of the (supposed) benefits of the _Lockdown Browser_, and thus makes [the issues](#why-the-lockdown-browser-is-bad) look even worse.
 
