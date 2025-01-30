@@ -29,16 +29,18 @@ if ($env:USERNAME -ne "WDAGUtilityAccount") {
 Set-Location $PSScriptRoot
 
 $lockdown_extract_dir = "C:\Windows\Temp\Lockdown"
-$lockdown_installer = Get-ChildItem Lockdown* | Select-Object -First 1
+$lockdown_installer = Get-ChildItem *LockDown*.exe | Select-Object -First 1
 if (-not $lockdown_installer) {
     Write-Log "No Lockdown installer found in the current directory. Exiting..."
     exit 1
 }
-elseif ($lockdown_installer.Name -like "LockDownBrowserOEMSetup.exe") {
-    $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe"
+elseif ($lockdown_installer.Name -like "LockDownBrowser-*.exe") {
+    $isOem = $false
+    $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser\LockDownBrowser.exe"
 }
 else {
-    $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser\LockDownBrowser.exe"
+    $isOem = $true
+    $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe"
 }
 
 function Remove-SystemInfo {
@@ -54,7 +56,7 @@ function Remove-SystemInfo {
 }
 
 function Install-LockdownBrowser {
-    if ($lockdown_installer.Name -like "LockDownBrowserOEMSetup.exe") {
+    if ($isOem) {
         Write-Log "Installing Lockdown Browser OEM..."
         & $lockdown_installer /s /r
         Write-Log "OEM installer executed."
@@ -88,7 +90,7 @@ function Install-LockdownBrowser {
 function Register-URLProtocol {
     Write-Log "Registering URL protocol(s)..."
     New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
-    if ($lockdown_installer.Name -like "LockDownBrowserOEMSetup.exe") {
+    if ($isOem) {
         # I got the urls from installing LDB OEM and looking in the regestery for :Lockdown Broswe OEM and fould all these HKCR keys."
         $urls = @("anst", "cllb", "ibz", "ielb", "jnld", "jzl", "ldb", "ldb1", "pcgs", "plb", "pstg", "rzi", "uwfb", "xmxg")
         $urls | ForEach-Object {
@@ -115,7 +117,7 @@ function Register-URLProtocol {
 
 function New-RunLockdownBrowserScript {
     Write-Log "Creating run script on desktop..."
-    if ($lockdown_installer.Name -like "LockDownBrowserOEMSetup.exe") {
+    if ($isOem) {
         $script_content = @'
 # Ask for the URL
 $url = Read-Host -Prompt "Please enter the URL"
