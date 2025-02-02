@@ -35,11 +35,11 @@ if (-not $lockdown_installer) {
     exit 1
 }
 elseif ($lockdown_installer.Name -like "LockDownBrowser-*.exe") {
-    $isOem = $false
+    $is_oem = $false
     $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser\LockDownBrowser.exe"
 }
 else {
-    $isOem = $true
+    $is_oem = $true
     $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe"
 }
 
@@ -56,7 +56,7 @@ function Remove-SystemInfo {
 }
 
 function Install-LockdownBrowser {
-    if ($isOem) {
+    if ($is_oem) {
         Write-Log "Installing Lockdown Browser OEM..."
         & $lockdown_installer /s /r
         Write-Log "OEM installer executed."
@@ -90,7 +90,7 @@ function Install-LockdownBrowser {
 function Register-URLProtocol {
     Write-Log "Registering URL protocol(s)..."
     New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
-    if ($isOem) {
+    if ($is_oem) {
         # I got the urls from installing LDB OEM and looking in the regestery for :Lockdown Broswe OEM and fould all these HKCR keys."
         $urls = @("anst", "cllb", "ibz", "ielb", "jnld", "jzl", "ldb", "ldb1", "pcgs", "plb", "pstg", "rzi", "uwfb", "xmxg")
         $urls | ForEach-Object {
@@ -117,7 +117,7 @@ function Register-URLProtocol {
 
 function New-RunLockdownBrowserScript {
     Write-Log "Creating run script on desktop..."
-    if ($isOem) {
+    if ($is_oem) {
         $script_content = @'
 # Ask for the URL
 $url = Read-Host -Prompt "Please enter the URL"
