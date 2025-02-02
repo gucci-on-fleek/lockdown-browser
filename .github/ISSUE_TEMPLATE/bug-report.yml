@@ -96,6 +96,19 @@ body:
     validations:
       required: true
 
+  - type: input
+    attributes:
+      label: Repository version
+      description: |
+        Please provide either the commit hash or the release version of the repository that you are currently using. If you're not sure what this is, run the following command from the repository directory:
+
+        ```powershell
+        git describe --long
+        ```
+      placeholder: "v1.4.0_RC2-0-ga6a8a41"
+    validations:
+      required: true
+
   - type: textarea
     attributes:
       label: Other
