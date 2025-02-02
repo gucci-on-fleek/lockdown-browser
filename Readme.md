@@ -85,7 +85,7 @@ https://download.respondus.com/lockdown/download7.php?id=XXXXXXXXX
 If the _Lockdown Browser_ fails to launch, **do not double-click** the file on the VM's desktop. Instead, open a PowerShell prompt inside the VM and run:
 
 ```powershell
-Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
+cd C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
 .\withdll.exe /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
 ```
 
