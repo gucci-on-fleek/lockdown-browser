@@ -60,9 +60,11 @@ function Install-LockdownBrowser {
         Write-Log "Installing Lockdown Browser OEM..."
         & $lockdown_installer /s /r
         Write-Log "OEM installer executed."
-        Wait-Process -Name *setup*
+        Start-Sleep -Seconds 3 # Wait for the installer to start
+        Wait-Process -Name *ISBEW64*
     }
     else {
+        # Slow code... but it works.
         & $lockdown_installer /x "`"$lockdown_extract_dir`""
         # Dumb installer needs a quoted path, even with no spaces.
         # Also, we have to extract the program before we can even run a silent install.
@@ -117,17 +119,18 @@ function Register-URLProtocol {
 
 function New-RunLockdownBrowserScript {
     Write-Log "Creating run script on desktop..."
-    if ($is_oem) {
-        $script_content = @'
-# Ask for the URL
+    try {
+        if ($is_oem) {
+# Wont work with "" because of the %7B and %7D, so I had to use single quotes.
+            $script_content = @'
 $url = Read-Host -Prompt "Please enter the URL"
 # Change directory and run the command
 Set-Location "C:\Users\WDAGUtilityAccount\Desktop\runtime_directory"
 ./withdll /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe" $url
 '@
-    }
-    else {
-        $script_content = @'
+        }
+        else {
+            $script_content = @"
 Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
 .\withdll.exe /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
 '@
