@@ -42,18 +42,6 @@ else {
     $is_oem = $true
     $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe"
 }
-$name = (Get-WmiObject Win32_OperatingSystem).Caption
-$bit = (Get-WmiObject Win32_OperatingSystem).OSArchitecture
-$os = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
-if ($os) {
-    $winReg = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion'
-    $patch = $winReg.UBR
-    $displayVersion = $winReg.DisplayVersion
-    if (-not $displayVersion) {
-        $displayVersion = $winReg.ReleaseId
-    }
-    Write-Log "$name $bit Version $displayVersion (OS Build $($os.BuildNumber).$patch)"
-}
 
 function Remove-SystemInfo {
     Write-Log "Removing system information..."
