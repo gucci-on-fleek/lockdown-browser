@@ -1,9 +1,3 @@
----
-name: Pull Request Template
-about: Use this template ONLY if you have been specifically directed to do so by a maintainer.
----
-value: |
-
 # Pull Request
 
 ## Summary
@@ -19,6 +13,19 @@ Use [Keywords](https://docs.github.com/en/issues/tracking-your-work-with-issues/
 - List your major changes
 - Mention any dependencies
 
+## Using Query Parameters
+
+Use these query parameters in your compare URL to open and pre-configure a PR:
+
+- **quick_pull**: Open the PR creation page directly (e.g. `?quick_pull=1`).
+- **title**: Set the PR title (e.g. `&title=Bug+fix`).
+- **body**: Set the body text (e.g. `&body=Describe+the+fix`).
+- **labels**: Add labels (e.g. `&labels=help+wanted,bug`).
+- **milestone**: Specify a milestone (e.g. `&milestone=My+Milestone`).
+- **assignees**: Assign users (e.g. `&assignees=octocat`).
+- **projects**: Add the PR to a project (e.g. `&projects=octo-org/1`).
+- **template**: Use a named PR template (e.g. `&template=issue_template.md`).
+
 ## Testing
 
 Describe how you tested your changes (include commands if relevant).
@@ -30,6 +37,5 @@ Describe how you tested your changes (include commands if relevant).
 ## Checklist
 
 - [ ] Update documentation if needed
-- [ ] Include tests
 - [ ] Consider potential edge cases
 - [ ] This PR is ready for review
