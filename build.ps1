@@ -48,7 +48,6 @@ function build_detours {
     Pop-Location
 }
 
-
 function build_hook {
     mkdir './build' -Force
     Push-Location build
@@ -58,8 +57,8 @@ function build_hook {
 
 function build_sandbox {
     # Sadly, the Sandbox doesn't support relative host paths, so we have to find-and-replace at build time.
-    (Get-Content ./src/Sandbox.wsb).replace('{{HOST_FOLDER}}', $PSScriptRoot + '/runtime_directory') | Set-Content ./build/Sandbox.wsb
-    (Get-Content ./src/Sandbox-with-Microphone-Camera.wsb).replace('{{HOST_FOLDER}}', $PSScriptRoot + '/runtime_directory') | Set-Content ./build/Sandbox-with-Microphone-Camera.wsb
+    (Get-Content ./src/Sandbox.xml).replace('{{HOST_FOLDER}}', $PSScriptRoot + '/runtime_directory') | Set-Content ./build/Sandbox.wsb
+    (Get-Content ./src/Sandbox-with-Microphone-Camera.xml).replace('{{HOST_FOLDER}}', $PSScriptRoot + '/runtime_directory') | Set-Content ./build/Sandbox-with-Microphone-Camera.wsb
 }
 
 function copy_files {

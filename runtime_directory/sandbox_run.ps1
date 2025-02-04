@@ -60,7 +60,9 @@ function Install-LockdownBrowser {
         Write-Log "Installing Lockdown Browser OEM..."
         & $lockdown_installer /s /r
         Write-Log "OEM installer executed."
-        Start-Sleep -Seconds 3 # Wait for the installer to start
+        while (-not (Get-Process -Name *ISBEW64* -ErrorAction SilentlyContinue)) {
+            Start-Sleep -Seconds 0.25
+        }
         Wait-Process -Name *ISBEW64*
     }
     else {
@@ -158,6 +160,7 @@ Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
         $result = [System.Windows.Forms.MessageBox]::Show("Do you want to test launch Lockdown Browser to ensure that there are no errors? (Highly recommended).", "Test LockDown Browser", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
         if ($result -eq [System.Windows.Forms.DialogResult]::Yes) {
             if ($is_oem) {
+                # URL is from https://github.com/gucci-on-fleek/lockdown-browser/issues/43.
                 Start-Process "powershell.exe" -ArgumentList "-Command `"Set-Location 'C:\Users\WDAGUtilityAccount\Desktop\runtime_directory'; ./withdll /d:GetSystemMetrics-Hook.dll 'C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe' 'ldb:dh%7BKS6poDqwsi1SHVGEJ+KMYaelPZ56lqcNzohRRiV1bzFj3Hjq8lehqEug88UjowG1mK1Q8h2Rg6j8kFZQX0FdyA==%7D'`""
             }
             else {
