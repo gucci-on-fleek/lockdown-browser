@@ -10,7 +10,7 @@ Set-StrictMode -Version 3
 
 # Create log file on the desktop
 $desktop_path = [System.Environment]::GetFolderPath("Desktop")
-$log_file_path = Join-Path -Path $desktop_path -ChildPath "sandbox_run.log"
+$log_file_path = Join-Path -Path $desktop_path -ChildPath "logs/sandbox_run.log"
 function Write-Log {
     param (
         [string]$message

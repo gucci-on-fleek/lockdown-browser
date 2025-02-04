@@ -8,7 +8,8 @@ Set-StrictMode -Version 3
 
 Set-Location $PSScriptRoot
 
-$log_file_path = Join-Path -Path $PSScriptRoot -ChildPath "sandbox_run.log"
+mkdir "./logs" -Force
+$log_file_path = Join-Path -Path $PSScriptRoot -ChildPath "logs/Build.log"
 function Write-Log {
     param (
         [string]$message
@@ -106,8 +107,12 @@ function build_hook {
 function build_sandbox {
     try {
         Write-Log "Building sandbox configuration"
-        (Get-Content ./src/Sandbox.xml).replace('{{HOST_FOLDER}}', $PSScriptRoot + '/runtime_directory') | Set-Content ./build/Sandbox.wsb
-        (Get-Content ./src/Sandbox-with-Microphone-Camera.xml).replace('{{HOST_FOLDER}}', $PSScriptRoot + '/runtime_directory') | Set-Content ./build/Sandbox-with-Microphone-Camera.wsb
+        $hostFolderPath = $PSScriptRoot + '/runtime_directory'
+        $logFolderPath = $PSScriptRoot + '/logs'
+        
+        (Get-Content ./src/Sandbox.xml) -replace '{{HOST_FOLDER}}', $hostFolderPath -replace '{{LOG_FOLDER}}', $logFolderPath | Set-Content ./build/Sandbox.wsb
+        (Get-Content ./src/Sandbox-with-Microphone-Camera.xml) -replace '{{HOST_FOLDER}}', $hostFolderPath -replace '{{LOG_FOLDER}}', $logFolderPath | Set-Content ./build/Sandbox-with-Microphone-Camera.wsb
+        
         Write-Log "Sandbox configuration built"
     }
     catch {
