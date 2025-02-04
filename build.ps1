@@ -139,6 +139,7 @@ function copy_files {
 }
 
 try {
+    Write-Log "----------------------------------------"
     Write-Log "Build script started"
     initialize_vs
     build_detours

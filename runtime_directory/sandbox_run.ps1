@@ -173,6 +173,7 @@ Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
 }
 
 # Main script execution
+Write-Log "----------------------------------------"
 Write-Log "Script started."
 Remove-SystemInfo
 Install-LockdownBrowser
