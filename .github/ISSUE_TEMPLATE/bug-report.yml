@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0+
 # SPDX-FileCopyrightText: 2020-2025 gucci-on-fleek and Voidless7125
 name: Bug Report
-description: Report an issue with “Lockdown Browser in Windows Sandbox”
+description: Report an issue with "Lockdown Browser in Windows Sandbox"
 labels: ["untriaged"]
 body:
   - type: markdown
@@ -11,7 +11,7 @@ body:
       value: |
         If this is a general question, please [start a discussion](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new?category=q-a).
 
-        If this is a feature request, please [start a discussion](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new?category=feature-requests) and we'll convert it into an issue once we've triaged it.
+        If this is a feature request, please [start a discussion](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new?category=feature-requests), and we'll convert it into an issue once we've triaged it.
 
         Otherwise, please provide as much information as possible, and we'll hopefully be able to solve your issue.
 
@@ -22,10 +22,10 @@ body:
         The following are the most common issues. Please check both boxes to confirm that your issue is not listed here.
       options:
         - label: >
-            If you get a “Terminal Services” error message, have you tried the troubleshooting steps [from the main instructions](https://github.com/gucci-on-fleek/lockdown-browser#you-get-a-terminal-services-error-message)?
+            If you get a "Terminal Services" error message, have you tried the troubleshooting steps [from the main instructions](https://github.com/gucci-on-fleek/lockdown-browser#you-get-a-terminal-services-error-message)?
           required: true
         - label: >
-            If you get a “the setup configuration provider is not registered” error message, have you [installed the “Visual Studio C++ Tools”](https://github.com/gucci-on-fleek/lockdown-browser?tab=readme-ov-file#system-requirements)?
+            If you get a "the setup configuration provider is not registered" error message, have you [installed the "Visual Studio C++ Tools"](https://github.com/gucci-on-fleek/lockdown-browser?tab=readme-ov-file#system-requirements)?
           required: true
 
   - type: textarea
@@ -42,8 +42,8 @@ body:
         What did you expect to happen? For example:
         - I expected that the PowerShell script wouldn't give me this error message.
         - I expected that the _Windows Sandbox_ wouldn't crash.
-        - I expected that the _Lockdown Browser_ wouldn't detect that it's running inside of a virtual machine.
-        - I expected that my webcam would work properly inside the _Windows Sandbox_.
+        - I expected that the _Lockdown Browser_ wouldn't detect that it's running inside a virtual machine.
+        - I expected my webcam to work properly inside the _Windows Sandbox_.
 
         If you can't describe what _should_ happen, then this is probably a question and is better suited for a [discussion](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new).
     validations:
@@ -63,7 +63,7 @@ body:
     attributes:
       label: Lockdown Browser Variant
       description: >
-        Please select the variant of the _Lockdown Browser_ that you are using.
+        Please select the variant of the _Lockdown Browser_ you use.
       multiple: false
       options:
         - Lockdown Browser (no webcam)
@@ -100,7 +100,7 @@ body:
     attributes:
       label: Repository version
       description: |
-        Please provide either the commit hash or the release version of the repository that you are currently using. If you're not sure what this is, run the following command from the repository directory:
+        Please provide either the commit hash or the release version of the repository you currently use. If you're not sure what this is, run the following command from the repository directory:
 
         ```powershell
         git describe --long
