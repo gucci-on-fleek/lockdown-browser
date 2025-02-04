@@ -77,7 +77,7 @@ function Install-LockdownBrowser {
             exit 1
         }
         Write-Log "Installing Lockdown Browser..."
-        & "$lockdown_extract_dir\setup.exe" /s "/f1$PSScriptRoot\setup.iss" "/f2$PSScriptRoot\..\setup.log"
+        & "$lockdown_extract_dir\setup.exe" /s "/f1$PSScriptRoot\setup.iss" "/f2$PSScriptRoot\..\logs\setup.log"
         Write-Log "Setup executed."
         Wait-Process -Name *ISBEW64*
     }
