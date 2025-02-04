@@ -13,7 +13,7 @@ body:
 
         If this is a feature request, please [start a discussion](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new?category=feature-requests), and we'll convert it into an issue once we've triaged it.
 
-        Otherwise, please provide as much information as possible, and we'll be able to solve your issue.
+        Otherwise, please provide as much information as possible, and we'll hopefully be able to solve your issue.
 
   - type: checkboxes
     attributes:
@@ -40,12 +40,12 @@ body:
       label: Expected Behavior
       description: |
         What did you expect to happen? For example:
-        - I expected the PowerShell script wouldn't give me this error message.
+        - I expected that the PowerShell script wouldn't give me this error message.
         - I expected that the _Windows Sandbox_ wouldn't crash.
         - I expected that the _Lockdown Browser_ wouldn't detect that it's running inside a virtual machine.
         - I expected my webcam to work properly inside the _Windows Sandbox_.
 
-        If you can't describe what _should_ happen, this is probably a question and better suited for a [discussion](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new).
+        If you can't describe what _should_ happen, then this is probably a question and is better suited for a [discussion](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new).
     validations:
       required: true
 
