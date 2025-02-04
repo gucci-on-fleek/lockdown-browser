@@ -60,9 +60,11 @@ function Install-LockdownBrowser {
         Write-Log "Installing Lockdown Browser OEM..."
         & $lockdown_installer /s /r
         Write-Log "OEM installer executed."
-        Wait-Process -Name *setup*
+        Start-Sleep -Seconds 3 # Wait for the installer to start
+        Wait-Process -Name *ISBEW64*
     }
     else {
+        # Slow code... but it works.
         & $lockdown_installer /x "`"$lockdown_extract_dir`""
         # Dumb installer needs a quoted path, even with no spaces.
         # Also, we have to extract the program before we can even run a silent install.
@@ -76,7 +78,7 @@ function Install-LockdownBrowser {
         Write-Log "Installing Lockdown Browser..."
         & "$lockdown_extract_dir\setup.exe" /s "/f1$PSScriptRoot\setup.iss" "/f2$PSScriptRoot\..\setup.log"
         Write-Log "Setup executed."
-        Wait-Process -Name "setup"
+        Wait-Process -Name *ISBEW64*
     }
     # Remove existing shortcut if it exists
     $public_desktop_path = "C:\Users\Public\Desktop"
@@ -117,23 +119,55 @@ function Register-URLProtocol {
 
 function New-RunLockdownBrowserScript {
     Write-Log "Creating run script on desktop..."
-    if ($is_oem) {
-        $script_content = @'
-# Ask for the URL
+    try {
+        if ($is_oem) {
+            $script_content = @'
 $url = Read-Host -Prompt "Please enter the URL"
 # Change directory and run the command
 Set-Location "C:\Users\WDAGUtilityAccount\Desktop\runtime_directory"
 ./withdll /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe" $url
 '@
-    }
-    else {
-        $script_content = @'
+        }
+        else {
+            $script_content = @"
 Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
 .\withdll.exe /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
-'@
+"@
+        }
+        $script_path = Join-Path -Path $desktop_path -ChildPath "Run-LockdownBrowser.ps1"
+        Set-Content -Path $script_path -Value $script_content
+        Set-ItemProperty -Path $script_path -Name Attributes -Value ([System.IO.FileAttributes]::Hidden)
+        $shortcut = (New-Object -ComObject WScript.Shell).CreateShortcut("$desktop_path\Lockdown Browser.lnk")
+        $shortcut.TargetPath = "powershell.exe"
+        $shortcut.Arguments = "-File `"$script_path`""
+        $shortcut.WorkingDirectory = $desktop_path
+        $shortcut.WindowStyle = 1
+        if ($is_oem) {
+            $shortcut.IconLocation = "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowser.ico"
+        }
+        else {
+            $shortcut.IconLocation = "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.ico"
+        }
+        $shortcut.Save()
+        Write-Log "Run script and shortcut created on desktop."
+
+        # Create a pop-up to test for errors
+        # Win 11/10 style message box
+        Add-Type -AssemblyName System.Windows.Forms
+        [System.Windows.Forms.Application]::EnableVisualStyles()
+        $result = [System.Windows.Forms.MessageBox]::Show("Do you want to test launch Lockdown Browser to ensure that there are no errors? (Highly recommended).", "Test LockDown Browser", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
+        if ($result -eq [System.Windows.Forms.DialogResult]::Yes) {
+            if ($is_oem) {
+                Start-Process "powershell.exe" -ArgumentList "-Command `"Set-Location 'C:\Users\WDAGUtilityAccount\Desktop\runtime_directory'; ./withdll /d:GetSystemMetrics-Hook.dll 'C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe' 'ldb:dh%7BKS6poDqwsi1SHVGEJ+KMYaelPZ56lqcNzohRRiV1bzFj3Hjq8lehqEug88UjowG1mK1Q8h2Rg6j8kFZQX0FdyA==%7D'`""
+            }
+            else {
+                Start-Process "powershell.exe" -ArgumentList "-File `"$script_path`""
+            }
+        }
     }
-    $script_path = Join-Path -Path $desktop_path -ChildPath "runlockdownbrowser.ps1"
-    Set-Content -Path $script_path -Value $script_content
+    catch {
+        Write-Log "Error creating run script or shortcut: $_"
+    }
 }
 
 # Main script execution
