@@ -8,6 +8,7 @@
 *.exp
 *.pdb
 *.dll
+*.log
 test-*
 build/**
 runtime_directory/Sandbox.wsb
