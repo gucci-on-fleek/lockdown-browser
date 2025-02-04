@@ -33,7 +33,7 @@ function initialize_vs {
             }
         }
         $vs_instances = Get-VSSetupInstance
-        if ($vs_instances.Count -eq 0) {
+        if (-not $vs_instances -or $vs_instances.Count -eq 0) {
             Write-Log "Error: No Visual Studio instances found"
             throw "No Visual Studio instances found"
         }
