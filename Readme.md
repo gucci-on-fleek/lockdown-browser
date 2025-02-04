@@ -82,7 +82,7 @@ https://download.respondus.com/lockdown/download7.php?id=XXXXXXXXX
 
 ### You get a “Terminal Services” error message
 
-If the _Lockdown Browser_ fails to launch, you can open the shortcut on the VM's desktop. If you are on a older version, Instead, open a PowerShell prompt inside the VM and run:
+If the _Lockdown Browser_ fails to launch, you can open the shortcut on the VM's desktop. If you are on a older version, you'll need to instead open a PowerShell prompt inside the VM and run:
 
 ```powershell
 cd C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
