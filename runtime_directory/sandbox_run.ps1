@@ -10,7 +10,7 @@ Set-StrictMode -Version 3
 
 # Create log file on the desktop
 $desktop_path = [System.Environment]::GetFolderPath("Desktop")
-$log_file_path = Join-Path -Path $desktop_path -ChildPath "sandbox_run.log"
+$log_file_path = Join-Path -Path $desktop_path -ChildPath "logs/sandbox_run.log"
 function Write-Log {
     param (
         [string]$message
@@ -66,7 +66,6 @@ function Install-LockdownBrowser {
         Wait-Process -Name *ISBEW64*
     }
     else {
-        # Slow code... but it works.
         & $lockdown_installer /x "`"$lockdown_extract_dir`""
         # Dumb installer needs a quoted path, even with no spaces.
         # Also, we have to extract the program before we can even run a silent install.
