@@ -45,48 +45,54 @@ else {
 
 function Remove-SystemInfo {
     Write-Log "Removing system information..."
-    Set-ExecutionPolicy -ExecutionPolicy Bypass -Force
-    Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion -ErrorAction Ignore
-    Remove-Item -Path "HKLM:\HARDWARE\DESCRIPTION\System\BIOS" -ErrorAction Ignore
-    $vmcompute_path = [System.Environment]::GetFolderPath("System") + "\VmComputeAgent.exe"
-    takeown /f $vmcompute_path
-    icacls $vmcompute_path /grant "Everyone:(D)"
-    Remove-Item -Path $vmcompute_path -ErrorAction Ignore
-    Write-Log "Removed system information successfully."
+    try {
+        Set-ExecutionPolicy -ExecutionPolicy Bypass -Force
+        Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion -ErrorAction Ignore
+        Remove-Item -Path "HKLM:\HARDWARE\DESCRIPTION\System\BIOS" -ErrorAction Ignore
+        $vmcompute_path = [System.Environment]::GetFolderPath("System") + "\VmComputeAgent.exe"
+        takeown /f $vmcompute_path
+        icacls $vmcompute_path /grant "Everyone:(D)"
+        Remove-Item -Path $vmcompute_path -ErrorAction Ignore
+        Write-Log "Removed system information successfully."
+    }
+    catch {
+        Write-Log "Error removing system information: $_"
+    }
 }
 
 function Install-LockdownBrowser {
-    if ($is_oem) {
-        Write-Log "Installing Lockdown Browser OEM..."
-        & $lockdown_installer /s /r
-        Write-Log "OEM installer executed."
-        while (-not (Get-Process -Name *ISBEW64* -ErrorAction SilentlyContinue)) {
-            Start-Sleep -Seconds 0.25
+    try {
+        if ($is_oem) {
+            Write-Log "Installing Lockdown Browser OEM..."
+            & $lockdown_installer /s /r
+            Write-Log "OEM installer executed."
+            while (-not (Get-Process -Name *ISBEW64* -ErrorAction SilentlyContinue)) {
+                Start-Sleep -Seconds 0.25
+            }
+            Wait-Process -Name *ISBEW64*
         }
-        Wait-Process -Name *ISBEW64*
-    }
-    else {
-        & $lockdown_installer /x "`"$lockdown_extract_dir`""
-        # Dumb installer needs a quoted path, even with no spaces.
-        # Also, we have to extract the program before we can even run a silent install.
-        Write-Log "Extracting Lockdown Browser..."
-        Wait-Process -Name *Lockdown* # For some weird reason, if the extracter gets killed the installer can fail sometimes on missing a file.
-        # You get get a prompt saying it's been extracted, so just click okay.
-        if (-not (Test-Path "$lockdown_extract_dir\setup.exe")) {
-            Write-Log "Setup file not found after extraction. Exiting..."
-            exit 1
+        else {
+            & $lockdown_installer /x "`"$lockdown_extract_dir`""
+            Write-Log "Extracting Lockdown Browser..."
+            Wait-Process -Name *Lockdown*
+            if (-not (Test-Path "$lockdown_extract_dir\setup.exe")) {
+                Write-Log "Setup file not found after extraction. Exiting..."
+                exit 1
+            }
+            Write-Log "Installing Lockdown Browser..."
+            & "$lockdown_extract_dir\setup.exe" /s "/f1$PSScriptRoot\setup.iss" "/f2$PSScriptRoot\..\logs\setup.log"
+            Write-Log "Setup executed."
+            Wait-Process -Name *ISBEW64*
         }
-        Write-Log "Installing Lockdown Browser..."
-        & "$lockdown_extract_dir\setup.exe" /s "/f1$PSScriptRoot\setup.iss" "/f2$PSScriptRoot\..\logs\setup.log"
-        Write-Log "Setup executed."
-        Wait-Process -Name *ISBEW64*
+        $public_desktop_path = "C:\Users\Public\Desktop"
+        $shortcut_path = Join-Path -Path $public_desktop_path -ChildPath "LockDown Browser.lnk"
+        if (Test-Path $shortcut_path) {
+            Remove-Item -Path $shortcut_path -Force
+            Write-Log "Removed existing LockDown Browser shortcut from public desktop."
+        }
     }
-    # Remove existing shortcut if it exists
-    $public_desktop_path = "C:\Users\Public\Desktop"
-    $shortcut_path = Join-Path -Path $public_desktop_path -ChildPath "LockDown Browser.lnk"
-    if (Test-Path $shortcut_path) {
-        Remove-Item -Path $shortcut_path -Force
-        Write-Log "Removed existing LockDown Browser shortcut from public desktop."
+    catch {
+        Write-Log "Error during Lockdown Browser installation: $_"
     }
 }
 
