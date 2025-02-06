@@ -22,21 +22,7 @@ function Write-Log {
 function initialize_vs {
     try {
         Write-Log "Initializing Visual Studio environment"
-        if (-not (Get-Module -ListAvailable -Name VSSetup)) {
-            Set-PSRepository PSGallery -InstallationPolicy Trusted
-            try {
-                Install-Module -Name VSSetup -Scope CurrentUser -Force
-            }
-            catch {
-                Write-Log "Error installing VSSetup module: $($_.Exception.Message) - $($_.Exception.StackTrace)"
-                throw
-            }
-        }
         $vs_instances = Get-VSSetupInstance
-        if (-not $vs_instances -or $vs_instances.Length -eq 0) {
-            Write-Log "Error: No Visual Studio instances found"
-            throw "No Visual Studio instances found"
-        }
         Push-Location $vs_instances[0].InstallationPath
         $cmd_args = '/c .\VC\Auxiliary\Build\vcvars32.bat'
         $cmd_args += ' & set "' # The 'set "' command (with the trailing quotation mark) reveals hidden environment variables
