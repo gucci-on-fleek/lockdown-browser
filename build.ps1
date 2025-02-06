@@ -124,17 +124,11 @@ function copy_files {
     }
 }
 
-try {
-    Write-Log "----------------------------------------"
-    Write-Log "Build script started"
-    initialize_vs
-    build_detours
-    build_hook
-    build_sandbox
-    copy_files
-    Write-Log "Build script completed"
-}
-catch {
-    Write-Log "Build script failed: $($_.Exception.Message) - $($_.Exception.StackTrace)"
-    throw
-}
+Write-Log "----------------------------------------"
+Write-Log "Build script started"
+initialize_vs
+build_detours
+build_hook
+build_sandbox
+copy_files
+Write-Log "Build script completed"
