@@ -8,6 +8,9 @@ Set-StrictMode -Version 3
 
 Set-Location $PSScriptRoot
 
+# Import the VSSetup module to use Get-VSSetupInstance function
+Import-Module VSSetup
+
 mkdir "./logs" -Force
 $log_file_path = Join-Path -Path $PSScriptRoot -ChildPath "logs/Build.log"
 function Write-Log {
@@ -97,8 +100,8 @@ function build_hook {
 function build_sandbox {
     try {
         Write-Log "Building sandbox configuration"
-        $hostFolderPath = $PSScriptRoot + '\runtime_directory'
-        $logFolderPath = $PSScriptRoot + '\logs'
+        $hostFolderPath = Join-Path -Path $PSScriptRoot -ChildPath 'runtime_directory'
+        $logFolderPath = Join-Path -Path $PSScriptRoot -ChildPath 'logs'
         
         (Get-Content ./src/Sandbox.xml) -replace '{{HOST_FOLDER}}', $hostFolderPath -replace '{{LOG_FOLDER}}', $logFolderPath | Set-Content ./build/Sandbox.wsb
         (Get-Content ./src/Sandbox-with-Microphone-Camera.xml) -replace '{{HOST_FOLDER}}', $hostFolderPath -replace '{{LOG_FOLDER}}', $logFolderPath | Set-Content ./build/Sandbox-with-Microphone-Camera.wsb
