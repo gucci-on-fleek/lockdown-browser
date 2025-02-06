@@ -99,28 +99,23 @@ function Install-LockdownBrowser {
 function Register-URLProtocol {
     Write-Log "Registering URL protocol(s)..."
     New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
-    if ($is_oem) {
-        # I got the urls from installing LDB OEM and looking in the regestery for :Lockdown Broswe OEM and fould all these HKCR keys."
-        $urls = @("anst", "cllb", "ibz", "ielb", "jnld", "jzl", "ldb", "ldb1", "pcgs", "plb", "pstg", "rzi", "uwfb", "xmxg")
-        $urls | ForEach-Object {
-            try {
-                Set-ItemProperty -Path "HKCR:\$_\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
-                Write-Log "Successfully set item property for URL protocol $_."
+    try {
+        if ($is_oem) {
+            # OEM: set a list of URL protocols in one loop
+            $urls = @("anst", "cllb", "ibz", "ielb", "jnld", "jzl", "ldb", "ldb1", "pcgs", "plb", "pstg", "rzi", "uwfb", "xmxg")
+            foreach ($url in $urls) {
+                Set-ItemProperty -Path "HKCR:\${url}\shell\open\command" -Name "(Default)" ` -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"') `
+                    Write-Log "Successfully set item property for URL protocol $url."
             }
-            catch {
-                # I had some intermittent errors, so I want them logged for debugging.
-                Write-Log "Failed to set item property for URL protocol $_. Error: $_"
-            }
+        }
+        else {
+            # Non-OEM: single URL protocol registration
+            Set-ItemProperty -Path "HKCR:\rldb\shell\open\command" -Name "(Default)" ` -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"') `
+                Write-Log "Successfully set item property for URL protocol rldb."
         }
     }
-    else {
-        try {
-            Set-ItemProperty -Path "HKCR:\rldb\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
-            Write-Log "Successfully set item property for URL protocol rldb."
-        }
-        catch {
-            Write-Log "Failed to set item property for URL protocol rldb. Error: $_"
-        }
+    catch {
+        Write-Log "Failed to set URL protocol(s). Error: $_"
     }
 }
 
@@ -165,7 +160,7 @@ Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
         $result = [System.Windows.Forms.MessageBox]::Show("Do you want to test launch Lockdown Browser to ensure that there are no errors? (Highly recommended).", "Test LockDown Browser", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
         if ($result -eq [System.Windows.Forms.DialogResult]::Yes) {
             if ($is_oem) {
-                # URL is from https://github.com/gucci-on-fleek/lockdown-browser/issues/43.
+                # URL obtained from https://github.com/gucci-on-fleek/lockdown-browser/issues/43.
                 Start-Process "powershell.exe" -ArgumentList "-Command `"Set-Location 'C:\Users\WDAGUtilityAccount\Desktop\runtime_directory'; ./withdll /d:GetSystemMetrics-Hook.dll 'C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe' 'ldb:dh%7BKS6poDqwsi1SHVGEJ+KMYaelPZ56lqcNzohRRiV1bzFj3Hjq8lehqEug88UjowG1mK1Q8h2Rg6j8kFZQX0FdyA==%7D'`""
             }
             else {
