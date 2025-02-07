@@ -52,9 +52,13 @@ Also, I'd like to point out that Respondus has explicitly granted permission for
 ## System Requirements
 
 - Windows 10 **Pro** or **Enterprise**
+
 - [Visual Studio C++ Tools](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools)
-- (Make sure to include the “MSVC C++ build tools” and “Windows SDK” components.)
-- ![Visual Studio installer screenshot](docs/Visual_Studio_Installer.png)
+
+  (Make sure to include the “MSVC C++ build tools” and “Windows SDK” components.)
+
+  ![Visual Studio installer screenshot](docs/Visual_Studio_Installer.png)
+
 - [git](https://git-scm.com/download/win)
 
 ## Building
@@ -108,6 +112,12 @@ When the _Lockdown Browser_ detects that `VmComputeAgent.exe` is running, it rea
 The _Lockdown Browser_ calls `GetSystemMetrics(SM_REMOTESESSION)` to determine if it runs in an RDP session. Since this function is in `user32.dll`, there aren’t any trivial ways to fix this. However, [_Microsoft Detours_](https://github.com/microsoft/Detours) allows you to intercept and replace any function in any `.dll`. A small hook (`GetSystemMetrics-Hook.cpp`) is used with `Detours` to intercept the function call and return a false value.
 
 Because this tool runs in the _Windows Sandbox_, no state is retained between sessions. Therefore, this tool provides a scripted installer for the _Lockdown Browser_. The _Lockdown Browser_’s installer is a little tricky to script, so the installation is a little hacky, but it works. And again, the _Sandbox_ is completely isolated from the rest of your system, so the _Lockdown Browser_ cannot cause any harm to your computer.
+
+## Support
+
+If you're having any difficulties installing the prerequisites or any other questions, please [start a new discussion](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new?category=q-a) and we'll be happy to help. If you're experiencing any bugs while building the project or running the _Windows Sandbox_, please [open a new issue](https://github.com/gucci-on-fleek/lockdown-browser/issues/new?template=bug-report.yml). If you would like to submit a patch, please [open a new pull request](https://github.com/gucci-on-fleek/lockdown-browser/compare).
+
+I will also usually reply to emails, but I have a _very_ busy schedule, so it may take a while (many months) for me to respond, and I will often end up asking you to post an issue on GitHub anyways. So to reiterate, the best way to get support is to post [an issue](https://github.com/gucci-on-fleek/lockdown-browser/issues/new) or [a discussion](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new) here on GitHub.
 
 ## License
 
