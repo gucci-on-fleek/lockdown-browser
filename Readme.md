@@ -52,9 +52,13 @@ Also, I'd like to point out that Respondus has explicitly granted permission for
 ## System Requirements
 
 - Windows 10 **Pro** or **Enterprise**
+
 - [Visual Studio C++ Tools](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools)
-- (Make sure to include the “MSVC C++ build tools” and “Windows SDK” components.)
-- ![Visual Studio installer screenshot](docs/Visual_Studio_Installer.png)
+
+  (Make sure to include the “MSVC C++ build tools” and “Windows SDK” components.)
+  
+  ![Visual Studio installer screenshot](docs/Visual_Studio_Installer.png)
+  
 - [git](https://git-scm.com/download/win)
 
 ## Building
