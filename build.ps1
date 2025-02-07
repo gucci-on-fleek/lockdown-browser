@@ -31,7 +31,7 @@ function initialize_vs {
     }
     Push-Location $vs_instances[0].InstallationPath
     $cmd_args = '/c .\VC\Auxiliary\Build\vcvars32.bat'
-    $cmd_args += ' & set "'
+    $cmd_args += ' & set "' # The 'set "' command (with the trailing quotation mark) reveals hidden environment variables
     
     $cmd_out = & 'cmd' $cmd_args
     Pop-Location
@@ -74,7 +74,7 @@ function build_hook {
     Write-Log "Building hook"
     mkdir './build' -Force
     Push-Location build
-    cl '/EHsc' '/LD' '/Fe:GetSystemMetrics-Hook.dll' '../src/GetSystemMetrics-Hook.cpp' '/I../Detours/include' '/link' '/nodefaultlib:oldnames.lib' '/export:DetourFinishHelperProcess,@1,NONAME' '/export:GetSystemMetrics' '../Detours\lib.X86\detours.lib' '../Detours\lib.X86\syelog.lib' 'user32.lib'
+    cl '/EHsc' '/LD' '/Fe:GetSystemMetrics-Hook.dll' '../src/GetSystemMetrics-Hook.cpp' '/I../Detours/include' '/link' '/nodefaultlib:oldnames.lib' '/export:DetourFinishHelperProcess,@1,NONAME' '/export:GetSystemMetrics' '../Detours\lib.X86\detours.lib' '../Detours\lib.X86\syelog.lib' 'user32.lib'  # Most of these are pretty standard VS C++ compiler options, but of note is "/export:DetourFinishHelperProcess,@1,NONAME". The program will not be functional without this argument, but it isn't that well documented.
     Pop-Location
     Write-Log "Hook built"
 }
@@ -93,7 +93,7 @@ function build_sandbox {
 function copy_files {
     Write-Log "Copying files to runtime directory"
     Push-Location runtime_directory
-    Copy-Item ../Detours/bin.X86/withdll.exe .
+    Copy-Item ../Detours/bin.X86/withdll.exe . # This is the program that actually injects the DLL
     Copy-Item ../build/GetSystemMetrics-Hook.dll .
     Copy-Item ../build/Sandbox.wsb .
     Copy-Item ../build/Sandbox-with-Microphone-Camera.wsb .

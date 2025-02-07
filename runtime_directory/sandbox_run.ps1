@@ -66,9 +66,12 @@ function Install-LockdownBrowser {
         Wait-Process -Name *ISBEW64*
     }
     else {
+        # Dumb installer needs a quoted path, even with no spaces.
+        # Also, we have to extract the program before we can even run a silent install.
         & $lockdown_installer /x "`"$lockdown_extract_dir`""
         Write-Log "Extracting Lockdown Browser..."
-        Wait-Process -Name *Lockdown*
+        Wait-Process -Name *Lockdown* # For some weird reason, if the extracter gets killed the installer can fail sometimes on missing a file.
+        # You get get a prompt saying it's been extracted, so just click okay.
         if (-not (Test-Path "$lockdown_extract_dir\setup.exe")) {
             Write-Log "Setup file not found after extraction. Exiting..."
             exit 1
@@ -78,6 +81,7 @@ function Install-LockdownBrowser {
         Write-Log "Setup executed."
         Wait-Process -Name *ISBEW64*
     }
+    # Remove existing shortcut if it exists
     $public_desktop_path = "C:\Users\Public\Desktop"
     $shortcut_path = Join-Path -Path $public_desktop_path -ChildPath "LockDown Browser.lnk"
     if (Test-Path $shortcut_path) {
@@ -90,6 +94,7 @@ function Register-URLProtocol {
     Write-Log "Registering URL protocol(s)..."
     New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
     if ($is_oem) {
+        # I got the urls from installing LDB OEM and looking in the registry for :Lockdown Browser OEM and found all these HKCR keys.
         $urls = @("anst", "cllb", "ibz", "ielb", "jnld", "jzl", "ldb", "ldb1", "pcgs", "plb", "pstg", "rzi", "uwfb", "xmxg")
         foreach ($url in $urls) {
             Set-ItemProperty -Path "HKCR:\${url}\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
@@ -135,11 +140,14 @@ Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
     $shortcut.Save()
     Write-Log "Run script and shortcut created on desktop."
 
+    # Create a pop-up to test for errors
+    # Win 11/10 style message box
     Add-Type -AssemblyName System.Windows.Forms
     [System.Windows.Forms.Application]::EnableVisualStyles()
     $result = [System.Windows.Forms.MessageBox]::Show("Do you want to test launch Lockdown Browser to ensure that there are no errors? (Highly recommended).", "Test LockDown Browser", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
     if ($result -eq [System.Windows.Forms.DialogResult]::Yes) {
         if ($is_oem) {
+            # URL is from https://github.com/gucci-on-fleek/lockdown-browser/issues/43.
             Start-Process "powershell.exe" -ArgumentList "-Command `"Set-Location 'C:\Users\WDAGUtilityAccount\Desktop\runtime_directory'; ./withdll /d:GetSystemMetrics-Hook.dll 'C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe' 'ldb:dh%7BKS6poDqwsi1SHVGEJ+KMYaelPZ56lqcNzohRRiV1bzFj3Hjq8lehqEug88UjowG1mK1Q8h2Rg6j8kZQX0FdyA==%7D'`""
         }
         else {
