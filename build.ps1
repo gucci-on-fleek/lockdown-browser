@@ -23,120 +23,95 @@ function Write-Log {
 }
 
 function initialize_vs {
-    try {
-        Write-Log "Initializing Visual Studio environment"
-        $vs_instances = Get-VSSetupInstance
-        if (-not $vs_instances -or $vs_instances.Length -eq 0) {
-            Write-Log "Error: No Visual Studio instances found"
-            throw "No Visual Studio instances found"
-        }
-        Push-Location $vs_instances[0].InstallationPath
-        $cmd_args = '/c .\VC\Auxiliary\Build\vcvars32.bat'
-        $cmd_args += ' & set "' # The 'set "' command (with the trailing quotation mark) reveals hidden environment variables
-
-        $cmd_out = & 'cmd' $cmd_args
-        Pop-Location
-
-        $env_vars = @{}
-        $cmd_out | ForEach-Object {
-            if ($_ -match '=') {
-                $key, $value = $_ -split '='
-                $env_vars[$key] = $value
-            }
-        }
-        $env_vars.Keys | ForEach-Object {
-            if ($_ -and $env_vars[$_]) {
-                set-item -force -path "env:\$($_)"  -value "$($env_vars[$_])"
-            }
-        }
-        Write-Log "Visual Studio environment initialized"
+    Write-Log "Initializing Visual Studio environment"
+    $vs_instances = Get-VSSetupInstance
+    if (-not $vs_instances -or $vs_instances.Length -eq 0) {
+        Write-Log "Error: No Visual Studio Build Tools instances found"
+        throw "No Visual Studio instances found"
     }
-    catch {
-        Write-Log "Error initializing Visual Studio environment: $($_.Exception.Message) - $($_.Exception.StackTrace)"
-        throw
+    Push-Location $vs_instances[0].InstallationPath
+    $cmd_args = '/c .\VC\Auxiliary\Build\vcvars32.bat'
+    $cmd_args += ' & set "'
+    
+    $cmd_out = & 'cmd' $cmd_args
+    Pop-Location
+
+    $env_vars = @{}
+    $cmd_out | ForEach-Object {
+        if ($_ -match '=') {
+            $key, $value = $_ -split '='
+            $env_vars[$key] = $value
+        }
     }
+    $env_vars.Keys | ForEach-Object {
+        if ($_ -and $env_vars[$_]) {
+            set-item -force -path "env:\$($_)"  -value "$($env_vars[$_])"
+        }
+    }
+    Write-Log "Visual Studio environment initialized"
 }
 
 function build_detours {
-    try {
-        Write-Log "Building Detours"
-        if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-            Write-Log "Error: git is not installed or not available in the system's PATH"
-            throw "git is not installed or not available in the system's PATH"
-        }
-        git submodule update --init
-        Push-Location Detours\src
-        nmake
-        Pop-Location
-        Push-Location Detours\samples\syelog
-        nmake
-        Pop-Location
-        Push-Location Detours\samples\withdll
-        nmake
-        Pop-Location
-        Write-Log "Detours built"
+    Write-Log "Building Detours"
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+        Write-Log "Error: git is not installed or not available in the system's PATH"
+        throw "git is not installed or not available in the system's PATH"
     }
-    catch {
-        Write-Log "Error building Detours: $($_.Exception.Message) - $($_.Exception.StackTrace)"
-        throw
-    }
+    git submodule update --init
+    Push-Location Detours\src
+    nmake
+    Pop-Location
+    Push-Location Detours\samples\syelog
+    nmake
+    Pop-Location
+    Push-Location Detours\samples\withdll
+    nmake
+    Pop-Location
+    Write-Log "Detours built"
 }
 
 function build_hook {
-    try {
-        Write-Log "Building hook"
-        mkdir './build' -Force
-        Push-Location build
-        cl '/EHsc' '/LD' '/Fe:GetSystemMetrics-Hook.dll' '../src/GetSystemMetrics-Hook.cpp' '/I../Detours/include' '/link' '/nodefaultlib:oldnames.lib' '/export:DetourFinishHelperProcess,@1,NONAME' '/export:GetSystemMetrics' '../Detours\lib.X86\detours.lib' '../Detours\lib.X86\syelog.lib' 'user32.lib' # Most of these are pretty standard VS C++ compiler options, but of note is "/export:DetourFinishHelperProcess,@1,NONAME". The program will not be functional without this argument, but it isn't that well documented.
-        Pop-Location
-        Write-Log "Hook built"
-    }
-    catch {
-        Write-Log "Error building hook: $($_.Exception.Message) - $($_.Exception.StackTrace)"
-        throw
-    }
+    Write-Log "Building hook"
+    mkdir './build' -Force
+    Push-Location build
+    cl '/EHsc' '/LD' '/Fe:GetSystemMetrics-Hook.dll' '../src/GetSystemMetrics-Hook.cpp' '/I../Detours/include' '/link' '/nodefaultlib:oldnames.lib' '/export:DetourFinishHelperProcess,@1,NONAME' '/export:GetSystemMetrics' '../Detours\lib.X86\detours.lib' '../Detours\lib.X86\syelog.lib' 'user32.lib'
+    Pop-Location
+    Write-Log "Hook built"
 }
 
 function build_sandbox {
-    try {
-        Write-Log "Building sandbox configuration"
-        $hostFolderPath = Join-Path -Path $PSScriptRoot -ChildPath 'runtime_directory'
-        $logFolderPath = Join-Path -Path $PSScriptRoot -ChildPath 'logs'
-        
-        (Get-Content ./src/Sandbox.xml) -replace '{{HOST_FOLDER}}', $hostFolderPath -replace '{{LOG_FOLDER}}', $logFolderPath | Set-Content ./build/Sandbox.wsb
-        (Get-Content ./src/Sandbox-with-Microphone-Camera.xml) -replace '{{HOST_FOLDER}}', $hostFolderPath -replace '{{LOG_FOLDER}}', $logFolderPath | Set-Content ./build/Sandbox-with-Microphone-Camera.wsb
-        
-        Write-Log "Sandbox configuration built"
-    }
-    catch {
-        Write-Log "Error building sandbox configuration: $($_.Exception.Message) - $($_.Exception.StackTrace)"
-        throw
-    }
+    Write-Log "Building sandbox configuration"
+    $host_folder_path = Join-Path -Path $PSScriptRoot -ChildPath 'runtime_directory'
+    $log_folder_path = Join-Path -Path $PSScriptRoot -ChildPath 'logs'
+    
+    (Get-Content ./src/Sandbox.xml) -replace '{{HOST_FOLDER}}', $host_folder_path -replace '{{LOG_FOLDER}}', $log_folder_path | Set-Content ./build/Sandbox.wsb
+    (Get-Content ./src/Sandbox-with-Microphone-Camera.xml) -replace '{{HOST_FOLDER}}', $host_folder_path -replace '{{LOG_FOLDER}}', $log_folder_path | Set-Content ./build/Sandbox-with-Microphone-Camera.wsb
+    
+    Write-Log "Sandbox configuration built"
 }
 
 function copy_files {
-    try {
-        Write-Log "Copying files to runtime directory"
-        Push-Location runtime_directory
-        Copy-Item ../Detours/bin.X86/withdll.exe . # This is the program that actually injects the DLL
-        Copy-Item ../build/GetSystemMetrics-Hook.dll .
-        Copy-Item ../build/Sandbox.wsb .
-        Copy-Item ../build/Sandbox-with-Microphone-Camera.wsb .
-        Pop-Location
-        Write-Log "Files copied to runtime directory"
-    }
-    catch {
-        Write-Log "Error copying files to runtime directory: $($_.Exception.Message) - $($_.Exception.StackTrace)"
-        throw
-    }
+    Write-Log "Copying files to runtime directory"
+    Push-Location runtime_directory
+    Copy-Item ../Detours/bin.X86/withdll.exe .
+    Copy-Item ../build/GetSystemMetrics-Hook.dll .
+    Copy-Item ../build/Sandbox.wsb .
+    Copy-Item ../build/Sandbox-with-Microphone-Camera.wsb .
+    Pop-Location
+    Write-Log "Files copied to runtime directory"
 }
 
-
-Write-Log "----------------------------------------"
-Write-Log "Build script started"
-initialize_vs
-build_detours
-build_hook
-build_sandbox
-copy_files
-Write-Log "Build script completed"
+try {
+    Write-Log "----------------------------------------"
+    Write-Log "Build script started"
+    initialize_vs
+    build_detours
+    build_hook
+    build_sandbox
+    copy_files
+    Write-Log "Build script completed"
+}
+catch {
+    Write-Log "An error occurred: $($_.Exception.Message) - $($_.Exception.StackTrace)"
+    throw
+}
