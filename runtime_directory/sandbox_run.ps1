@@ -66,9 +66,9 @@ function Install-LockdownBrowser {
         Wait-Process -Name *ISBEW64*
     }
     else {
-        & $lockdown_installer /x "`"$lockdown_extract_dir`""
         # Dumb installer needs a quoted path, even with no spaces.
         # Also, we have to extract the program before we can even run a silent install.
+        & $lockdown_installer /x "`"$lockdown_extract_dir`""
         Write-Log "Extracting Lockdown Browser..."
         Wait-Process -Name *Lockdown* # For some weird reason, if the extracter gets killed the installer can fail sometimes on missing a file.
         # You get get a prompt saying it's been extracted, so just click okay.
@@ -94,89 +94,82 @@ function Register-URLProtocol {
     Write-Log "Registering URL protocol(s)..."
     New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
     if ($is_oem) {
-        # I got the urls from installing LDB OEM and looking in the regestery for :Lockdown Broswe OEM and fould all these HKCR keys."
+        # I got the urls from installing LDB OEM and looking in the registry for :Lockdown Browser OEM and found all these HKCR keys.
         $urls = @("anst", "cllb", "ibz", "ielb", "jnld", "jzl", "ldb", "ldb1", "pcgs", "plb", "pstg", "rzi", "uwfb", "xmxg")
-        $urls | ForEach-Object {
-            try {
-                Set-ItemProperty -Path "HKCR:\$_\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
-                Write-Log "Successfully set item property for URL protocol $_."
-            }
-            catch {
-                # I had some intermittent errors, so I want them logged for debugging.
-                Write-Log "Failed to set item property for URL protocol $_. Error: $_"
-            }
+        foreach ($url in $urls) {
+            Set-ItemProperty -Path "HKCR:\${url}\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
+            Write-Log "Successfully set item property for URL protocol $url."
         }
     }
     else {
-        try {
-            Set-ItemProperty -Path "HKCR:\rldb\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
-            Write-Log "Successfully set item property for URL protocol rldb."
-        }
-        catch {
-            Write-Log "Failed to set item property for URL protocol rldb. Error: $_"
-        }
+        Set-ItemProperty -Path "HKCR:\rldb\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
+        Write-Log "Successfully set item property for URL protocol rldb."
     }
 }
 
 function New-RunLockdownBrowserScript {
     Write-Log "Creating run script on desktop..."
-    try {
-        if ($is_oem) {
-            $script_content = @'
+    if ($is_oem) {
+        $script_content = @'
 $url = Read-Host -Prompt "Please enter the URL"
 # Change directory and run the command
 Set-Location "C:\Users\WDAGUtilityAccount\Desktop\runtime_directory"
 ./withdll /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe" $url
 '@
-        }
-        else {
-            $script_content = @"
+    }
+    else {
+        $script_content = @"
 Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
 .\withdll.exe /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
 "@
-        }
-        $script_path = Join-Path -Path $desktop_path -ChildPath "Run-LockdownBrowser.ps1"
-        Set-Content -Path $script_path -Value $script_content
-        Set-ItemProperty -Path $script_path -Name Attributes -Value ([System.IO.FileAttributes]::Hidden)
-        $shortcut = (New-Object -ComObject WScript.Shell).CreateShortcut("$desktop_path\Lockdown Browser.lnk")
-        $shortcut.TargetPath = "powershell.exe"
-        $shortcut.Arguments = "-File `"$script_path`""
-        $shortcut.WorkingDirectory = $desktop_path
-        $shortcut.WindowStyle = 1
+    }
+    $script_path = Join-Path -Path $desktop_path -ChildPath "Run-LockdownBrowser.ps1"
+    Set-Content -Path $script_path -Value $script_content
+    Set-ItemProperty -Path $script_path -Name Attributes -Value ([System.IO.FileAttributes]::Hidden)
+    $shortcut = (New-Object -ComObject WScript.Shell).CreateShortcut("$desktop_path\Lockdown Browser.lnk")
+    $shortcut.TargetPath = "powershell.exe"
+    $shortcut.Arguments = "-File `"$script_path`""
+    $shortcut.WorkingDirectory = $desktop_path
+    $shortcut.WindowStyle = 1
+    if ($is_oem) {
+        $shortcut.IconLocation = "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowser.ico"
+    }
+    else {
+        $shortcut.IconLocation = "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.ico"
+    }
+    $shortcut.Save()
+    Write-Log "Run script and shortcut created on desktop."
+
+    # Create a pop-up to test for errors
+    # Win 11/10 style message box
+    Add-Type -AssemblyName System.Windows.Forms
+    [System.Windows.Forms.Application]::EnableVisualStyles()
+    $result = [System.Windows.Forms.MessageBox]::Show("Do you want to test launch Lockdown Browser to ensure that there are no errors? (Highly recommended).", "Test LockDown Browser", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
+    if ($result -eq [System.Windows.Forms.DialogResult]::Yes) {
         if ($is_oem) {
-            $shortcut.IconLocation = "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowser.ico"
+            # URL is from https://github.com/gucci-on-fleek/lockdown-browser/issues/43.
+            Start-Process "powershell.exe" -ArgumentList "-Command `"Set-Location 'C:\Users\WDAGUtilityAccount\Desktop\runtime_directory'; ./withdll /d:GetSystemMetrics-Hook.dll 'C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe' 'ldb:dh%7BKS6poDqwsi1SHVGEJ+KMYaelPZ56lqcNzohRRiV1bzFj3Hjq8lehqEug88UjowG1mK1Q8h2Rg6j8kZQX0FdyA==%7D'`""
         }
         else {
-            $shortcut.IconLocation = "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.ico"
+            Start-Process "powershell.exe" -ArgumentList "-File `"$script_path`""
         }
-        $shortcut.Save()
-        Write-Log "Run script and shortcut created on desktop."
-
-        # Create a pop-up to test for errors
-        # Win 11/10 style message box
-        Add-Type -AssemblyName System.Windows.Forms
-        [System.Windows.Forms.Application]::EnableVisualStyles()
-        $result = [System.Windows.Forms.MessageBox]::Show("Do you want to test launch Lockdown Browser to ensure that there are no errors? (Highly recommended).", "Test LockDown Browser", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
-        if ($result -eq [System.Windows.Forms.DialogResult]::Yes) {
-            if ($is_oem) {
-                # URL is from https://github.com/gucci-on-fleek/lockdown-browser/issues/43.
-                Start-Process "powershell.exe" -ArgumentList "-Command `"Set-Location 'C:\Users\WDAGUtilityAccount\Desktop\runtime_directory'; ./withdll /d:GetSystemMetrics-Hook.dll 'C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe' 'ldb:dh%7BKS6poDqwsi1SHVGEJ+KMYaelPZ56lqcNzohRRiV1bzFj3Hjq8lehqEug88UjowG1mK1Q8h2Rg6j8kFZQX0FdyA==%7D'`""
-            }
-            else {
-                Start-Process "powershell.exe" -ArgumentList "-File `"$script_path`""
-            }
-        }
-    }
-    catch {
-        Write-Log "Error creating run script or shortcut: $_"
     }
 }
 
-# Main script execution
 Write-Log "----------------------------------------"
 Write-Log "Script started."
-Remove-SystemInfo
-Install-LockdownBrowser
-Register-URLProtocol
-New-RunLockdownBrowserScript
-Write-Log "Script completed."
+
+try {
+    Remove-SystemInfo
+    Install-LockdownBrowser
+    Register-URLProtocol
+    New-RunLockdownBrowserScript
+    Write-Log "Script completed."
+}
+catch {
+    Write-Log "An error occurred: $_"
+    Add-Type -AssemblyName System.Windows.Forms
+    [System.Windows.Forms.Application]::EnableVisualStyles()
+    [System.Windows.Forms.MessageBox]::Show("An error occurred: $($_.Exception.Message)", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    exit 1
+}

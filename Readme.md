@@ -92,13 +92,8 @@ If the _Lockdown Browser_ fails to launch, you can open the shortcut on the VM's
 cd C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
 .\withdll.exe /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
 ```
-(OEM versions of the _Lockdown Browser_ must have a URI at the end; `ldb:dh%7BKS6poDqwsi1SHVGEJ+KMYaelPZ56lqcNzohRRiV1bzFj3Hjq8lehqEug88UjowG1mK1Q8h2Rg6j8kFZQX0FdyA==%7D` is a good default)
 
-
-```powershell
-cd C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
-.\withdll.exe /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
-```
+(OEM versions of the _Lockdown Browser_ must have a URL at the end; `ldb:dh%7BKS6poDqwsi1SHVGEJ+KMYaelPZ56lqcNzohRRiV1bzFj3Hjq8lehqEug88UjowG1mK1Q8h2Rg6j8kFZQX0FdyA==%7D` is a good default)
 
 Of course, this is usually symptomatic of another issue, so please make sure you have followed all the earlier instructions.
 
