@@ -80,13 +80,18 @@ function Install-LockdownBrowser {
         & "$lockdown_extract_dir\setup.exe" /s "/f1$PSScriptRoot\setup.iss" "/f2$PSScriptRoot\..\logs\setup.log"
         Write-Log "Setup executed."
         Wait-Process -Name *ISBEW64*
-    }
-    # Remove existing shortcut if it exists
-    $public_desktop_path = "C:\Users\Public\Desktop"
-    $shortcut_path = Join-Path -Path $public_desktop_path -ChildPath "LockDown Browser.lnk"
-    if (Test-Path $shortcut_path) {
-        Remove-Item -Path $shortcut_path -Force
-        Write-Log "Removed existing LockDown Browser shortcut from public desktop."
+        $shortcut = "C:\Users\Public\Desktop\LockDown Browser.lnk"
+        1..20 | ForEach-Object {
+            if (Test-Path $shortcut) { return }
+            Start-Sleep -Milliseconds 500
+        }
+        if (Test-Path $shortcut) {
+            Remove-Item $shortcut -Force
+            Write-Log "Removed existing LockDown Browser shortcut."
+        }
+        else {
+            Write-Log "Shortcut not found after waiting."
+        }
     }
 }
 
