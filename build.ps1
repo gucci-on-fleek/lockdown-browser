@@ -26,9 +26,16 @@ function Write-Log {
 function initialize_vs {
     Write-Log "Initializing Visual Studio environment"
     $vs_instances = Get-VSSetupInstance
-    if (-not $vs_instances -or $vs_instances.Length -eq 0) {
-        Write-Log "Error: No Visual Studio Build Tools instances found"
-        throw "No Visual Studio instances found"
+    if (-not $vs_instances.Count -eq 0) {
+        $answer = Read-Host "No Visual Studio Build Tools instances found. This can sometimes be wrong. If you have installed this press Y. (Y/N)"
+        if ($answer -ne "Y") {
+            Write-Log "Error: No Visual Studio Build Tools instances found"
+            throw "No Visual Studio instances found"
+        }
+        else {
+            Write-Log "Bypassing Visual Studio environment initialization as per user request"
+            return
+        }
     }
     Push-Location $vs_instances[0].InstallationPath
     $cmd_args = '/c .\VC\Auxiliary\Build\vcvars32.bat'
