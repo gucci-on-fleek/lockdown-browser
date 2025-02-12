@@ -83,7 +83,7 @@ function Install-LockdownBrowser {
         $shortcut = "C:\Users\Public\Desktop\LockDown Browser.lnk"
         1..20 | ForEach-Object {
             if (Test-Path $shortcut) { return }
-            Start-Sleep -Milliseconds 50
+            Start-Sleep -Milliseconds 200
         }
         if (Test-Path $shortcut) {
             Remove-Item $shortcut -Force
@@ -144,6 +144,36 @@ Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
     }
     $shortcut.Save()
     Write-Log "Run script and shortcut created on desktop."
+
+    # Remove existing Start Menu shortcut if it exists
+    $shortcut = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Respondus\LockDown Browser.lnk"
+    1..20 | ForEach-Object {
+        if (Test-Path $shortcut) { return }
+        Start-Sleep -Milliseconds 100
+    }
+    if (Test-Path $shortcut) {
+        Remove-Item $shortcut -Force
+        Write-Log "Removed existing LockDown Browser start menu shortcut."
+    }
+    else {
+        Write-Log "Start Menu Shortcut not found after waiting."
+    }
+
+    # Create a new Start Menu shortcut with updated parameters
+    $wscriptShell = New-Object -ComObject WScript.Shell
+    $startMenuShortcutObject = $wscriptShell.CreateShortcut($shortcut)
+    $startMenuShortcutObject.TargetPath = "powershell.exe"
+    # Adjust the Arguments as needed; here we point to the run script you created
+    $startMenuShortcutObject.Arguments = "-File `"$script_path`""
+    $startMenuShortcutObject.WorkingDirectory = Split-Path $script_path
+    if ($is_oem) {
+        $startMenuShortcutObject.IconLocation = "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowser.ico"
+    }
+    else {
+        $startMenuShortcutObject.IconLocation = "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.ico"
+    }
+    $startMenuShortcutObject.Save()
+    Write-Log "New Start Menu shortcut created at $shortcut"
 
     Add-Type -AssemblyName System.Windows.Forms
     [System.Windows.Forms.Application]::EnableVisualStyles()
