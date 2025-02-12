@@ -83,7 +83,7 @@ function Install-LockdownBrowser {
         $shortcut = "C:\Users\Public\Desktop\LockDown Browser.lnk"
         1..20 | ForEach-Object {
             if (Test-Path $shortcut) { return }
-            Start-Sleep -Milliseconds 500
+            Start-Sleep -Milliseconds 50
         }
         if (Test-Path $shortcut) {
             Remove-Item $shortcut -Force
@@ -145,10 +145,20 @@ Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
     $shortcut.Save()
     Write-Log "Run script and shortcut created on desktop."
 
-    # Create a pop-up to test for errors
-    # Win 11/10 style message box
     Add-Type -AssemblyName System.Windows.Forms
     [System.Windows.Forms.Application]::EnableVisualStyles()
+    $os = Get-CimInstance Win32_OperatingSystem
+    $version = [Version]$os.Version
+    if ($version.Build -lt 22000) {
+        # Windows 10 detected.
+        [System.Windows.Forms.MessageBox]::Show("Warning: On Windows 10, you will be detected if you minimize the window.", "Warning", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+    }
+    elseif ($version.Build -ge 22000 -and $version.Build -lt 27686) {
+        # Windows 11 (22H2-24H2) detected.
+        [System.Windows.Forms.MessageBox]::Show("Warning: On Windows 11 (22H2-24H2), the camera and mic may not work. Versions after 27686 don't have this issue.", "Warning", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+    }
+    
+    # Create a pop-up to test for errors and launch Lockdown Browser.
     $result = [System.Windows.Forms.MessageBox]::Show("Do you want to test launch Lockdown Browser to ensure that there are no errors? (Highly recommended).", "Test LockDown Browser", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
     if ($result -eq [System.Windows.Forms.DialogResult]::Yes) {
         if ($is_oem) {

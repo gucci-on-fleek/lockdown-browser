@@ -3,14 +3,15 @@
 # SPDX-License-Identifier: MPL-2.0+
 # SPDX-FileCopyrightText: 2020-2025 gucci-on-fleek and Voidless7125
 
+param(
+    [switch]$r, # If passed, remove directories/files as specified.
+    [switch]$l  # If passed, zip the logs folder after the build.
+)
+
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 3
 
 Set-Location $PSScriptRoot
-
-# Import the VSSetup module to use Get-VSSetupInstance function
-Install-Module VSSetup -Scope CurrentUser
-Import-Module VSSetup
 
 mkdir "./logs" -Force
 $log_file_path = Join-Path -Path $PSScriptRoot -ChildPath "logs/Build.log"
@@ -20,14 +21,42 @@ function Write-Log {
     )
     $time_stamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $log_message = "$time_stamp - $message"
+    Write-Host $log_message
     Add-Content -Path $log_file_path -Value $log_message
+}
+
+if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+    Write-Log "Error: git is not installed or not available in the system's PATH"
+    throw "git is not installed or not available in the system's PATH"
+}
+
+# If removal flag -r is passed, delete specified directories and files
+if ($r) {
+    Write-Log "Removal flag specified (-r): Cleaning directories and files"
+    "1" | git clean -ixd
+    mkdir "./logs" -Force
+    Write-Log "Removal complete"
+}
+
+# If the log compression flag (-l) is passed, zip the logs folder
+if ($l) {
+    Write-Log "Zipping logs folder as requested by -l flag"
+    $zipFile = Join-Path $PSScriptRoot "logs.zip"
+    if (Test-Path $zipFile) { Remove-Item $zipFile -Force }
+    Compress-Archive -Path "./logs/*" -DestinationPath $zipFile
+    Write-Log "Logs zipped to $zipFile"
+    exit
 }
 
 function initialize_vs {
     Write-Log "Initializing Visual Studio environment"
-    $vs_instances = Get-VSSetupInstance
-    if (-not $vs_instances.Count -eq 0) {
-        $answer = Read-Host "No Visual Studio Build Tools instances found. This can sometimes be wrong. If you have installed this press Y. (Y/N)"
+    # Import the VSSetup module to use Get-VSSetupInstance function
+    Install-Module VSSetup -Scope CurrentUser
+    Import-Module VSSetup
+    # Bypasses error on not finding length of $vs_instances. - Voidless7125
+    $vs_instances = @(Get-VSSetupInstance)
+    if (-not $vs_instances -or $vs_instances.Length -eq 0) {
+        $answer = Read-Host "No Visual Studio Build Tools instances found. This can sometimes be wrong. If you have installed this press Y. (y/N)"
         if ($answer -ne "Y") {
             Write-Log "Error: No Visual Studio Build Tools instances found"
             throw "No Visual Studio instances found"
@@ -61,10 +90,6 @@ function initialize_vs {
 
 function build_detours {
     Write-Log "Building Detours"
-    if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-        Write-Log "Error: git is not installed or not available in the system's PATH"
-        throw "git is not installed or not available in the system's PATH"
-    }
     git submodule update --init
     Push-Location Detours\src
     nmake
