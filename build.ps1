@@ -22,7 +22,7 @@ function Write-Log {
     $time_stamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $log_message = "$time_stamp - $message"
     Write-Host $log_message
-    Add-Content -Path $log_file_path -Value $log_message
+    $log_message | Out-File -FilePath $log_file_path -Append -Encoding UTF8
 }
 
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
@@ -137,6 +137,14 @@ function copy_files {
 try {
     Write-Log "----------------------------------------"
     Write-Log "Build script started"
+    Write-Log "Collecting system information..."
+    $sysInfo = systeminfo 2>&1 | Out-String
+    $regexFilter = 'Registered Owner|Time Zone|Wireless|Wi-Fi|Network Card|Bluetooth|DHCP|IP address|Connection Name|NIC|Status:|Realtek|Wintun|\b\d{1,3}(\.\d{1,3}){3}\b|fe80::'
+    $sysInfo -split "`n" | ForEach-Object {
+        if (($_ -ne "") -and ($_ -notmatch $regexFilter)) {
+            Write-Log $_.Trim()
+        }
+    }
     initialize_vs
     build_detours
     build_hook
