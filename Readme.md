@@ -51,7 +51,7 @@ Also, I'd like to point out that Respondus has explicitly granted permission for
 
 ## System Requirements
 
-- Windows 10 **Pro** or **Enterprise**
+- Windows 10/11 **Pro** or **Enterprise**
 
 - [Visual Studio C++ Tools](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools)
 
