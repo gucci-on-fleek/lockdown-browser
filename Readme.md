@@ -99,8 +99,8 @@ Of course, this is usually symptomatic of another issue, so please make sure you
 
 ### Build issues
 
-If you are having build issues, such as file directoy issues, please pass the flag -r to reset your workplace to a fresh start. It should build fine.
-If you still have issues, run build.ps1 -l for logging to a zip file that you can send to us.
+If you are having build issues, such as file directoy issues, please run `.\build.ps1 -r` to reset your workplace to a fresh start. It should build fine.
+If you still have issues, run `.\build.ps1 -l` for logging to a zip file that you can send to us.
 
 ### Other issues
 
