@@ -5,7 +5,6 @@
  */
 #include <windows.h>
 #include <detours.h>
-#include <iostream>
 
 // Save original function for GetSystemMetrics hook
 static int(WINAPI *Original_GetSystemMetrics)(int nIndex) = GetSystemMetrics;
