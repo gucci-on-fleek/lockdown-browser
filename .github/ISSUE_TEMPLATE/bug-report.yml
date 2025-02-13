@@ -114,6 +114,13 @@ body:
       label: Other
       description: Add any other relevant information here. (Optional)
 
+  - type: file
+    attributes:
+      label: Logs Upload
+      description: Please attach a zip file containing your logs. You can get this by running `.\build.ps1 -l`
+      multiple: false
+      accept: ".zip"
+
   - type: markdown
     attributes:
       value: >

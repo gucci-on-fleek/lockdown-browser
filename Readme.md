@@ -97,6 +97,11 @@ cd C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
 
 Of course, this is usually symptomatic of another issue, so please make sure you have followed all the earlier instructions.
 
+### Build issues
+
+If you are having build issues, such as file directoy issues, please pass the flag -r to reset your workplace to a fresh start. It should build fine.
+If you still have issues, run build.ps1 -l for logging to a zip file that you can send to us.
+
 ### Other issues
 
 If you have made sure that you have followed all the instructions, please feel free to [open a new issue](https://github.com/gucci-on-fleek/lockdown-browser/issues/new/choose). Ensure you include any error messages and your _Lockdown Browser_ version.
