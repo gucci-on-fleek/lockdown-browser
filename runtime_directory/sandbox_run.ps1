@@ -83,7 +83,8 @@ function Install-LockdownBrowser {
         $shortcut = "C:\Users\Public\Desktop\LockDown Browser.lnk"
         1..20 | ForEach-Object {
             if (Test-Path $shortcut) { return }
-            Start-Sleep -Milliseconds 200
+            Start-Sleep -Milliseconds 500
+            # It needs to be 500, its not reliable at 100.
         }
         if (Test-Path $shortcut) {
             Remove-Item $shortcut -Force
