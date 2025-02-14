@@ -9,8 +9,6 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 3
 Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
-Write-Log "----------------------------------------"
-Write-Log "Script started."
 
 # Create log file on the desktop
 $desktop_path = [System.Environment]::GetFolderPath("Desktop")
@@ -127,16 +125,16 @@ function New-RunLockdownBrowserScript {
 
     # Build the script content.
     if ($is_oem) {
-        $script_content = @"
-\$url = Read-Host -Prompt "Please enter the URL"
+        $script_content = @'
+$url = Read-Host -Prompt "Please enter the URL"
 Set-Location "C:\Users\WDAGUtilityAccount\Desktop\runtime_directory"
-./withdll /d:GetSystemMetrics-Hook.dll 'C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe' \$url
-"@
+./withdll /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe" $url
+'@
     }
     else {
         $script_content = @"
-Set-Location "C:\Users\WDAGUtilityAccount\Desktop\runtime_directory"
-.\withdll.exe /d:GetSystemMetrics-Hook.dll `C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe`
+Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
+.\withdll.exe /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
 "@
     }
     $script_path = Join-Path -Path $desktop_path -ChildPath "Run-LockdownBrowser.ps1"
@@ -197,6 +195,8 @@ Set-Location "C:\Users\WDAGUtilityAccount\Desktop\runtime_directory"
 }
 
 try {
+    Write-Log "----------------------------------------"
+    Write-Log "Script started."
     Remove-SystemInfo
     Install-LockdownBrowser
     Register-URLProtocol
