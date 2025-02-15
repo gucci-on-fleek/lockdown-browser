@@ -91,6 +91,7 @@ body:
       description: >
         What version of our software are you running?
         Note: Versions older than 1.3 may not work correctly, and RC versions may be unstable.
+        Master versions can be even more unstable, but have the fastest fixes.
       options:
         - 1.0
         - 1.1
@@ -98,6 +99,7 @@ body:
         - 1.3
         - 1.4 RC1
         - 1.4 RC2
+        - Master / 1.4.0
       default: 0
     validations:
       required: true
