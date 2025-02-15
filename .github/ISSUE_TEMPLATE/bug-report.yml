@@ -56,11 +56,9 @@ body:
         If there were any error messages or warning dialogs displayed, please either
 
         - Paste the _exact_ wording of the error message here; or
-        -
         - Take a screenshot and upload the image here (preferred).
-
         - Provide the log file paths or attach log files via a comment. 
-        - You can get all logs by running ./build.ps1 -Logs.
+        - You can get all logs by running `./build.ps1 -Logs`.
 
   - type: dropdown
     attributes:
