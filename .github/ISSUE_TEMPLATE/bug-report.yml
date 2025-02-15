@@ -113,7 +113,29 @@ body:
     attributes:
       label: Other
       description: Add any other relevant information here. (Optional)
-
+      
+  - type: file
+    attributes:
+      label: Log Files
+      description: |
+        Upload your log files. You can get all logs by running ./build.ps1 -Logs.
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: >
+        What version of our software are you running?
+        Note: Versions older than 1.3 may not work correctly, and RC versions may be unstable.
+      options:
+        - 1.0
+        - 1.1
+        - 1.2
+        - 1.3
+        - 1.4 RC1
+        - 1.4 RC2
+      default: 0
+    validations:
+      required: true
   - type: markdown
     attributes:
       value: >
