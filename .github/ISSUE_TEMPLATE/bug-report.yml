@@ -117,9 +117,9 @@ body:
   - type: file
     attributes:
       label: Logs Upload
-      description: Please attach a zip file containing your logs. You can get this by running `.\build.ps1 -l`
+      description: Please attach your log(s). You can get a all-logs.log by running `.\build.ps1 -Logs`. It will be stored in the logs folder.
       multiple: false
-      accept: ".zip"
+      accept: ".log"
 
   - type: markdown
     attributes:
