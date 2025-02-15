@@ -113,7 +113,7 @@ This repo consists of simple tools cobbled together into a coherent package.
 
 The _Lockdown Browser_ detects a few BIOS-related registry keys in `HKLM:\HARDWARE\DESCRIPTION`. Therefore, `sandbox_run.ps1` deletes these keys/values.
 
-When the _Lockdown Browser_ detects that `VmComputeAgent.exe` is running, it realizes it is in a VM and refuses to launch. This program is part of the _Windows Sandbox_, and cannot be stopped without crashing the VM.  However, when the _Browser_ checks all the running programs, it also opens and examines each image file. If `sandbox_run.ps1` deletes the image file, the _Lockdown Browser_ acts like the program isn’t even running.
+- When the _Lockdown Browser_ detects that `VmComputeAgent.exe` is running, it realizes it is in a VM and refuses to launch. This program is part of the _Windows Sandbox_, and cannot be stopped without crashing the VM.  However, when the _Browser_ checks all the running programs, it also opens and examines each image file. If `sandbox_run.ps1` deletes the image file, the _Lockdown Browser_ acts like the program isn’t even running.
 
 The _Lockdown Browser_ calls `GetSystemMetrics(SM_REMOTESESSION)` to determine if it runs in an RDP session. Since this function is in `user32.dll`, there aren’t any trivial ways to fix this. However, [_Microsoft Detours_](https://github.com/microsoft/Detours) allows you to intercept and replace any function in any `.dll`. A small hook (`GetSystemMetrics-Hook.cpp`) is used with `Detours` to intercept the function call and return a false value.
 
@@ -125,8 +125,8 @@ If you’re having any difficulties installing the prerequisites or have any oth
 
 I will also usually reply to emails, but I have a _very_ busy schedule, so it may take a while (many months) for me to respond, and I will often ask you to post an issue on GitHub. So, to reiterate, the best way to get support is to post [an issue](https://github.com/gucci-on-fleek/lockdown-browser/issues/new) or [a discussion](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new) here on GitHub.
 
-## licence
+## Licence
 
-All code is licenced under the [_Mozilla Public licence_, version 2.0](https://www.mozilla.org/en-US/MPL/2.0/) or greater. The documentation is licenced under [CC-BY-SA, version 4.0](https://creativecommons.org/licences/by-sa/4.0/legalcode) or greater, in addition to the MPL. The _Detours_ submodule has an MIT licence as detailed in `Detours/licence.md`.
+All code is licensed under the [_Mozilla Public License_, version 2.0](https://www.mozilla.org/en-US/MPL/2.0/) or greater. The documentation is licensed under [CC-BY-SA, version 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode) or greater, in addition to the MPL. The _Detours_ submodule has an MIT licence as detailed in `Detours/LICENSE.md`.
 
 In addition to the formal licence terms, I would appreciate it if users do not distribute any binaries: I intend for this project to be merely a proof-of-concept, and any binaries circulating on the internet diminish this status. Of course, you are within your rights to ignore this request, but I would appreciate it if you would respect my wishes. Thanks!

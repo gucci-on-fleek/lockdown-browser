@@ -104,9 +104,9 @@ function Register-URLProtocol {
     if ($is_oem) {
         # I got the urls from installing LDB OEM and looking in the registry for :Lockdown Browser OEM and found all these HKCR keys.
         $protocols = @("anst", "cllb", "ibz", "ielb", "jnld", "jzl", "ldb", "ldb1", "pcgs", "plb", "pstg", "rzi", "uwfb", "xmxg")
-        foreach ($url in $protocols) {
-            Set-ItemProperty -Path "HKCR:\$url\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
-            Write-Log "Successfully set item property for URL protocol $url."
+        foreach ($protocol in $protocols) {
+            Set-ItemProperty -Path "HKCR:\$protocol\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
+            Write-Log "Successfully set item property for URL protocol $protocol."
         }
     }
     else {
