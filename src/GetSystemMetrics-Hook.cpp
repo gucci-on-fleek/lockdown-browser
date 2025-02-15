@@ -4,7 +4,7 @@
  * SPDX-FileCopyrightText: 2020-2025 gucci-on-fleek and Voidless7125
  */
 #include <windows.h>
-#include <detours.h>
+#include "detours.h"
 
 // Save original function for GetSystemMetrics hook
 static int(WINAPI *Original_GetSystemMetrics)(int nIndex) = GetSystemMetrics;
@@ -27,7 +27,7 @@ int WINAPI Hooked_GetSystemMetrics(int nIndex)
 }
 
 // Custom hook functions for TerminateProcess and ExitProcess
-BOOL WINAPI MyTerminateProcess(HANDLE hProcess, UINT uExitCode)
+BOOL WINAPI Hooked_TerminateProcess(HANDLE hProcess, UINT uExitCode)
 {
     return TRUE; // Simulate success without terminating
 }
@@ -38,28 +38,29 @@ VOID WINAPI MyExitProcess(UINT uExitCode)
 }
 
 // Install all detour hooks
-void InstallDetourHooks()
+static void InstallDetourHooks()
 {
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
-    // Hook GetSystemMetrics
-    if (DetourAttach(reinterpret_cast<PVOID *>(&Original_GetSystemMetrics), Hooked_GetSystemMetrics) != NO_ERROR)
+    struct HookPair
     {
-        DetourTransactionAbort();
-        return;
-    }
-    // Hook TerminateProcess
-    if (DetourAttach(reinterpret_cast<PVOID *>(&Original_TerminateProcess), MyTerminateProcess) != NO_ERROR)
+        PVOID *ppOriginal;
+        PVOID pHook;
+    };
+
+    HookPair hooks[] = {
+        {reinterpret_cast<PVOID *>(&Original_GetSystemMetrics), reinterpret_cast<PVOID>(Hooked_GetSystemMetrics)},
+        {reinterpret_cast<PVOID *>(&Original_TerminateProcess), reinterpret_cast<PVOID>(Hooked_TerminateProcess)},
+        {reinterpret_cast<PVOID *>(&Original_ExitProcess), reinterpret_cast<PVOID>(MyExitProcess)}};
+
+    for (const auto &hook : hooks)
     {
-        DetourTransactionAbort();
-        return;
-    }
-    // Hook ExitProcess
-    if (DetourAttach(reinterpret_cast<PVOID *>(&Original_ExitProcess), MyExitProcess) != NO_ERROR)
-    {
-        DetourTransactionAbort();
-        return;
+        if (DetourAttach(hook.ppOriginal, hook.pHook) != NO_ERROR)
+        {
+            DetourTransactionAbort();
+            return;
+        }
     }
 
     if (DetourTransactionCommit() != NO_ERROR)
@@ -68,29 +69,29 @@ void InstallDetourHooks()
     }
 }
 
-// Uninstall all detour hooks
-void UninstallDetourHooks()
+static void UninstallDetourHooks()
 {
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
-    // Unhook GetSystemMetrics
-    if (DetourDetach(reinterpret_cast<PVOID *>(&Original_GetSystemMetrics), Hooked_GetSystemMetrics) != NO_ERROR)
+    struct HookPair
     {
-        DetourTransactionAbort();
-        return;
-    }
-    // Unhook TerminateProcess
-    if (DetourDetach(reinterpret_cast<PVOID *>(&Original_TerminateProcess), MyTerminateProcess) != NO_ERROR)
+        PVOID *ppOriginal;
+        PVOID pHook;
+    };
+
+    HookPair hooks[] = {
+        {reinterpret_cast<PVOID *>(&Original_GetSystemMetrics), reinterpret_cast<PVOID>(Hooked_GetSystemMetrics)},
+        {reinterpret_cast<PVOID *>(&Original_TerminateProcess), reinterpret_cast<PVOID>(Hooked_TerminateProcess)},
+        {reinterpret_cast<PVOID *>(&Original_ExitProcess), reinterpret_cast<PVOID>(MyExitProcess)}};
+
+    for (auto &hook : hooks)
     {
-        DetourTransactionAbort();
-        return;
-    }
-    // Unhook ExitProcess
-    if (DetourDetach(reinterpret_cast<PVOID *>(&Original_ExitProcess), MyExitProcess) != NO_ERROR)
-    {
-        DetourTransactionAbort();
-        return;
+        if (DetourDetach(hook.ppOriginal, hook.pHook) != NO_ERROR)
+        {
+            DetourTransactionAbort();
+            return;
+        }
     }
 
     if (DetourTransactionCommit() != NO_ERROR)

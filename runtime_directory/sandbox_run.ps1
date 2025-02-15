@@ -38,10 +38,12 @@ if (-not $lockdown_installer) {
 elseif ($lockdown_installer.Name -like "LockDownBrowser-*.exe") {
     $is_oem = $false
     $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser\LockDownBrowser.exe"
+    $browser_icon = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser\LockDownBrowser.ico"
 }
 else {
     $is_oem = $true
     $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe"
+    $browser_icon = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser OEM\LockDownBrowser.ico"
 }
 
 function Remove-SystemInfo {
@@ -115,14 +117,6 @@ function Register-URLProtocol {
 
 function New-RunLockdownBrowserScript {
     Write-Log "Creating run script on desktop..."
-
-    $browserIcon = if ($is_oem) {
-        "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowser.ico"
-    }
-    else {
-        "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.ico"
-    }
-
     # Build the script content.
     if ($is_oem) {
         $script_content = @'
@@ -145,17 +139,17 @@ Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
     $shortcut.Arguments = "-File `"$script_path`""
     $shortcut.WorkingDirectory = $desktop_path
     $shortcut.WindowStyle = 1
-    $shortcut.IconLocation = $browserIcon
+    $shortcut.IconLocation = $browser_icon
     $shortcut.Save()
 
     # Remove existing Start Menu shortcut if it exists.
-    $startShortcutPath = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Respondus\LockDown Browser.lnk"
+    $start_shortcut_path = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Respondus\LockDown Browser.lnk"
     1..20 | ForEach-Object {
-        if (Test-Path $startShortcutPath) { return }
+        if (Test-Path $start_shortcut_path) { return }
         Start-Sleep -Milliseconds 100
     }
-    if (Test-Path $startShortcutPath) {
-        Remove-Item $startShortcutPath -Force
+    if (Test-Path $start_shortcut_path) {
+        Remove-Item $start_shortcut_path -Force
         Write-Log "Removed existing LockDown Browser start menu shortcut."
     }
     else {
@@ -164,12 +158,12 @@ Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
 
     # Create new Start Menu shortcut.
     $wscriptShell = New-Object -ComObject WScript.Shell
-    $startMenuShortcutObject = $wscriptShell.CreateShortcut($startShortcutPath)
-    $startMenuShortcutObject.TargetPath = "powershell.exe"
-    $startMenuShortcutObject.Arguments = "-File `"$script_path`""
-    $startMenuShortcutObject.WorkingDirectory = Split-Path $script_path
-    $startMenuShortcutObject.IconLocation = $browserIcon
-    $startMenuShortcutObject.Save()
+    $start_menu_shortcut_object = $wscriptShell.CreateShortcut($start_shortcut_path)
+    $start_menu_shortcut_object.TargetPath = "powershell.exe"
+    $start_menu_shortcut_object.Arguments = "-File `"$script_path`""
+    $start_menu_shortcut_object.WorkingDirectory = Split-Path $script_path
+    $start_menu_shortcut_object.IconLocation = $browser_icon
+    $start_menu_shortcut_object.Save()
     Write-Log "Run script, shortcut, and start menu shortcut created."
 
     # Display warnings based on Windows version.
@@ -186,6 +180,7 @@ Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
     $result = [System.Windows.Forms.MessageBox]::Show("Do you want to test launch Lockdown Browser to ensure that there are no errors? (Highly recommended).", "Test LockDown Browser", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
     if ($result -eq [System.Windows.Forms.DialogResult]::Yes) {
         if ($is_oem) {
+            # URL is from https://github.com/gucci-on-fleek/lockdown-browser/issues/43.
             Start-Process "powershell.exe" -ArgumentList "-Command `"Set-Location 'C:\Users\WDAGUtilityAccount\Desktop\runtime_directory'; ./withdll /d:GetSystemMetrics-Hook.dll 'C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe' 'ldb:dh%7BKS6poDqwsi1SHVGEJ+KMYaelPZ56lqcNzohRRiV1bzFj3Hjq8lehqEug88UjowG1mK1Q8h2Rg6j8kZQX0FdyA==%7D'`""
         }
         else {
@@ -195,6 +190,7 @@ Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
 }
 
 try {
+    # Functions in PowerShell are supposed to be like this, just learned.
     Write-Log "----------------------------------------"
     Write-Log "Script started."
     Remove-SystemInfo

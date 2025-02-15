@@ -1,6 +1,6 @@
 <!-- Lockdown Browser in Windows Sandbox
      https://github.com/gucci-on-fleek/lockdown-browser
-     SPDX-License-Identifier: MPL-2.0+ OR CC-BY-SA-4.0+
+     SPDX-licence-Identifier: MPL-2.0+ OR CC-BY-SA-4.0+
      SPDX-FileCopyrightText: 2020-2025 gucci-on-fleek and Voidless7125
 -->
 # _Lockdown Browser_ in _Windows Sandbox_
@@ -47,7 +47,7 @@ This repository does not contain any materials belonging to Respondus Inc. You m
 This project is intended merely as a proof-of-concept. While this tool could be used to facilitate cheating, this is not my intent. Any consequences of using this tool in a real exam are entirely your responsibility.
 
 Also, I’d like to point out that Respondus has explicitly granted permission for this type of research. [From their website](https://archive.md/WTat2#54%):
-  > Hacker Tested, Market Approved – Hundreds of universities and schools around the world use LockDown Browser. It seems that at least one person (or team) at each institution makes it a quest to “break out” or beat the system. Some of the best minds have taken our software to task over the years, and we’ve addressed each issue that’s been raised. (Yes, **you have our blessing… go ahead and see if you can break it.**)
+  > Hacker Tested, Market Approved – Hundreds of universities and schools around the world use LockDown Browser. It seems that at least one person (or team) at each institution makes it a quest to “break out” or beat the system. Some of the best minds have taken our software to task over the years, and we’ve addressed each issue that’s been raised. (Yes, **you have our blessing… go ahead and see if you can break it.**)
 
 ## System Requirements
 
@@ -57,13 +57,13 @@ Also, I’d like to point out that Respondus has explicitly granted permission f
 
  (Make sure to include the “MSVC C++ build tools” and “Windows SDK” components.)
 
-  ![Visual Studio installer screenshot](docs/Visual_Studio_Installer.png)
+  ![Visual Studio installer screenshot](docs/Visual_Studio_Installer.png)
 
 - [git](https://git-scm.com/download/win)
 
 ## Building
 
-Make sure to **clone** the repository and run `build.ps1`. Then, [install the _Windows Sandbox_](https://www.howtogeek.com/399290/how-to-use-windows-10s-new-sandbox-to-safely-test-apps/). That’s it!
+Make sure to **clone** the repository and run `build.ps1`. Then, [install the _Windows Sandbox_](https://learn.microsoft.com/en-us/windows/security/application-security/application-isolation/windows-sandbox/windows-sandbox-install). That’s it!
 
 ## Running
 
@@ -78,7 +78,7 @@ Make sure to **clone** the repository and run `build.ps1`. Then, [install the _W
 
 ### The _Browser_ updates itself, then it stops working
 
-This tool does not support having the _Lockdown Browser_ update itself. Instead, whenever an update is available for the Browser, you should download a fresh installer from wherever you originally downloaded it. The URL should be similar in format to:
+This tool does not support having the _Lockdown Browser_ update itself. Instead, whenever an update is available for the _Browser_, you should download a fresh installer from wherever you originally downloaded it. The URL should be similar in format to:
 
 ```text
 https://download.respondus.com/lockdown/download7.php?id=XXXXXXXXX
@@ -99,9 +99,9 @@ Of course, this is usually symptomatic of another issue, so please ensure you ha
 
 ### Build issues
 
-If you have to build issues, please run `.\build.ps1 -Clean` to reset your workplace to a fresh start. It should build fine.
+If you have to build issues, please run `.\build.ps1 -Clean` to reset your workplace to a fresh start.
 
-If you still have issues, run `.\build.ps1 -Logs` for logging into a zip file you can send us.
+If you still have issues, run `.\build.ps1 -Logs` for logging into one file you can send us.
 
 ### Other issues
 
@@ -117,7 +117,7 @@ When the _Lockdown Browser_ detects that `VmComputeAgent.exe` is running, it rea
 
 The _Lockdown Browser_ calls `GetSystemMetrics(SM_REMOTESESSION)` to determine if it runs in an RDP session. Since this function is in `user32.dll`, there aren’t any trivial ways to fix this. However, [_Microsoft Detours_](https://github.com/microsoft/Detours) allows you to intercept and replace any function in any `.dll`. A small hook (`GetSystemMetrics-Hook.cpp`) is used with `Detours` to intercept the function call and return a false value.
 
-Because this tool runs in the _Windows Sandbox_, no state is retained between sessions. Therefore, this tool provides a scripted installer for the _Lockdown Browser_. The _Lockdown Browser_’s installer is a little tricky to script, so the installation is a little hacky, but it works. And again, the _Sandbox_ is wholly isolated from the rest of your system, so the _Lockdown Browser_ cannot cause any harm to your computer.
+Because this tool runs in the _Windows Sandbox_, no state is retained between sessions. Therefore, this tool provides a scripted installer for the _Lockdown Browser_. The _Lockdown Browser_’s installer is a little tricky to script, so the installation is a little hacky, but it works. And again, the _Sandbox_ is completely isolated from the rest of your system, so the _Lockdown Browser_ cannot cause any harm to your computer.
 
 ## Support
 
@@ -125,8 +125,8 @@ If you’re having any difficulties installing the prerequisites or have any oth
 
 I will also usually reply to emails, but I have a _very_ busy schedule, so it may take a while (many months) for me to respond, and I will often ask you to post an issue on GitHub. So, to reiterate, the best way to get support is to post [an issue](https://github.com/gucci-on-fleek/lockdown-browser/issues/new) or [a discussion](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new) here on GitHub.
 
-## License
+## licence
 
-All code is licensed under the [_Mozilla Public License_, version 2.0](https://www.mozilla.org/en-US/MPL/2.0/) or greater. The documentation is licensed under [CC-BY-SA, version 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode) or greater, in addition to the MPL. The _Detours_ submodule has an MIT license as detailed in `Detours/LICENSE.md`.
+All code is licenced under the [_Mozilla Public licence_, version 2.0](https://www.mozilla.org/en-US/MPL/2.0/) or greater. The documentation is licenced under [CC-BY-SA, version 4.0](https://creativecommons.org/licences/by-sa/4.0/legalcode) or greater, in addition to the MPL. The _Detours_ submodule has an MIT licence as detailed in `Detours/licence.md`.
 
-In addition to the formal license terms, I would appreciate it if users do not distribute any binaries: I intend for this project to be merely a proof-of-concept, and any binaries circulating on the internet diminish this status. Of course, you are within your rights to ignore this request, but I would appreciate it if you would respect my wishes. Thanks!
+In addition to the formal licence terms, I would appreciate it if users do not distribute any binaries: I intend for this project to be merely a proof-of-concept, and any binaries circulating on the internet diminish this status. Of course, you are within your rights to ignore this request, but I would appreciate it if you would respect my wishes. Thanks!
