@@ -114,13 +114,6 @@ body:
       label: Other
       description: Add any other relevant information here. (Optional)
 
-  - type: file
-    attributes:
-      label: Logs Upload
-      description: Please attach your log(s). You can get a all-logs.log by running `.\build.ps1 -Logs`. It will be stored in the logs folder.
-      multiple: true
-      accept: ".log"
-
   - type: markdown
     attributes:
       value: >
