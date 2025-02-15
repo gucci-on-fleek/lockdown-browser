@@ -27,6 +27,8 @@ body:
         - label: >
             If you get a "the setup configuration provider is not registered" error message, have you [installed the "Visual Studio C++ Tools"](https://github.com/gucci-on-fleek/lockdown-browser?tab=readme-ov-file#system-requirements)?
           required: true
+        - label: > 
+            You have tried reseting your build with `./build.ps1 -Clean`
 
   - type: textarea
     attributes:
@@ -93,13 +95,13 @@ body:
         Note: Versions older than 1.3 may not work correctly, and RC versions may be unstable.
         Master versions can be even more unstable, but have the fastest fixes.
       options:
-        - 1.0
-        - 1.1
-        - 1.2
-        - 1.3
-        - 1.4 RC1
-        - 1.4 RC2
-        - Master / 1.4.0
+        - 1.0.0 (Unsupported)
+        - 1.1.0 (Unsupported)
+        - 1.2.0
+        - 1.3.0
+        - 1.4.0 RC1 (Unsupported)
+        - 1.4.0 RC2
+        - 1.4.0
       default: 0
     validations:
       required: true
@@ -113,7 +115,7 @@ body:
         ```powershell
         Get-ComputerInfo | Select-Object OsVersion, WindowsVersion
         ```
-      placeholder: "Windows 10 21H2 (Build 19044.1645)"
+      placeholder: "Windows 10 22H2 (Build 19045.5487)"
     validations:
       required: true
 
