@@ -3,14 +3,6 @@ param(
     [switch]$Logs  # If passed, zip the logs folder after the build.
 )
 
-# Elevate the script if not running as administrator
-$principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Write-Host "Restarting as Administrator..."
-    Start-Process powershell -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $PSCommandPath -Verb RunAs
-    exit
-}
-
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 3
 
@@ -34,11 +26,33 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     throw "git is not installed or not available in the system's PATH"
 }
 
-# If removal flag -Clean is passed, delete specified directories and files
+# If removal flag -Clean is passed, check for the .git folder; if missing, delete specified files.
 if ($Clean) {
-    Write-Log "Removal flag specified (-Clean): Cleaning directories and files"
-    git clean -xd -f --exclude='Lockdown*.exe' --exclude='logs'
-    Write-Log "Removal complete"
+    Write-Log "Removal flag specified (-Clean): Checking for .git folder."
+    $gitFolder = Join-Path $PSScriptRoot ".git"
+    if (-not (Test-Path $gitFolder)) {
+        Write-Log ".git folder is missing. Deleting specified build files."
+        $filesToDelete = @(
+            "runtime_directory\GetSystemMetrics-Hook.dll",
+            "runtime_directory\sandbox.wsb",
+            "runtime_directory\sandbox-with-Microphone-Camera.wsb",
+            "runtime_directory\withdll.exe"
+        )
+        foreach ($relativePath in $filesToDelete) {
+            $filePath = Join-Path $PSScriptRoot $relativePath
+            if (Test-Path $filePath) {
+                Remove-Item $filePath -Force
+                Write-Log "Deleted file: $filePath"
+            }
+            else {
+                Write-Log "File not found, skipping deletion: $filePath"
+            }
+        }
+    }
+    else {
+        git clean -xd -f --exclude='Lockdown*.exe' --exclude='logs'
+    }
+    Write-Log "Deletion complete."
 }
 
 # If the log flag (-Logs) is passed, combine all logs into a single file.
@@ -61,7 +75,6 @@ if ($Logs) {
 
 function Initialize-VS {
     Write-Log "Initializing Visual Studio environment"
-    Install-Module VSSetup -Force 
     Import-Module VSSetup
     $vs_instances = @(Get-VSSetupInstance)
     if (-not $vs_instances -or $vs_instances.Length -eq 0) {
@@ -126,6 +139,8 @@ function New-Hook {
         '../Detours\lib.X86\detours.lib' `
         '../Detours\lib.X86\syelog.lib' `
         'user32.lib'
+    # Most of these are pretty standard VS C++ compiler options, but of note is "/export:DetourFinishHelperProcess,@1,NONAME". 
+    # The program will not be functional without this argument, but it isn't that well documented.
     Pop-Location
     Write-Log "Hook built"
 }
@@ -152,25 +167,13 @@ function Copy-Files {
     Write-Log "Files copied to runtime directory"
 }
 
-function Add-AVExclusion {
-    $runtimePath = Join-Path $PSScriptRoot "runtime_directory"
-    $response = Read-Host "Do you want to add the runtime directory ('$runtimePath') as an exclusion for Windows Defender? (Y/N)"
-    if ($response -match '^[yY]$') {
-        Add-MpPreference -ExclusionPath $runtimePath
-        Write-Log "Runtime directory added as exclusion for Windows Defender."
-    }
-    else {
-        Write-Log "User skipped adding runtime directory to Windows Defender exclusions."
-    }
-}
-
 function Get-System-Info {
     Write-Log "Selected system information:"
     $os = Get-CimInstance Win32_OperatingSystem
     Write-Log "Architecture: $($os.OSArchitecture)"
     Write-Log "Windows Version: $($os.Caption)"
     Write-Log "Windows Build: $($os.BuildNumber)"
-    if ($os.Caption -match "(Home|Pro|Enterprise)") {
+    if ($os.Caption -match "(Home|Pro||Pro For Workstations|Enterprise)") {
         if ($matches[0] -eq "Home") {
             throw "Unsupported Windows edition: Home. Pro or higher is required."
         }
@@ -178,10 +181,6 @@ function Get-System-Info {
     }
     else {
         Write-Log "Windows Edition: Unknown"
-    }
-    $sandbox_feature = Get-WindowsOptionalFeature -Online -FeatureName *Sandbox*
-    foreach ($feature in $sandbox_feature) {
-        Write-Log "Sandbox Feature '$($feature.FeatureName)' State: $($feature.State)"
     }
     
     $av_status = Get-MpComputerStatus
@@ -226,7 +225,6 @@ try {
     New-Hook
     Initialize-Sandbox
     Copy-Files
-    Add-AVExclusion
     Write-Log "Build script completed"
 }
 catch {

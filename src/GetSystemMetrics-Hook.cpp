@@ -4,121 +4,73 @@
  * SPDX-FileCopyrightText: 2020-2025 gucci-on-fleek and Voidless7125
  */
 #include <windows.h>
-#include "detours.h"
+#include <detours.h>
 
-// Save original function for GetSystemMetrics hook
-static int(WINAPI *Original_GetSystemMetrics)(int nIndex) = GetSystemMetrics;
+static int(WINAPI *Original_GetSystemMetrics)(int nIndex) = GetSystemMetrics; // Save the original function
 
-// Save original function pointers for TerminateProcess and ExitProcess
-static BOOL(WINAPI *Original_TerminateProcess)(HANDLE hProcess, UINT uExitCode) = TerminateProcess;
-static VOID(WINAPI *Original_ExitProcess)(UINT uExitCode) = ExitProcess;
-
-// Hooked GetSystemMetrics function using Detours
 int WINAPI Hooked_GetSystemMetrics(int nIndex)
 {
     if (nIndex == SM_REMOTESESSION)
     {
-        return 0; // Simulate a local session
+        return 0; // Make it look like this is a local session
     }
     else
     {
-        return Original_GetSystemMetrics(nIndex); // Don't override other system metrics
+        return Original_GetSystemMetrics(nIndex); // Don't override the other SystemMetrics requests
     }
 }
 
-// Custom hook functions for TerminateProcess and ExitProcess
-BOOL WINAPI Hooked_TerminateProcess(HANDLE hProcess, UINT uExitCode)
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-    return TRUE; // Simulate success without terminating
-}
+    /* This is all pretty much copied from the Detours docs. I can't really pretend to understand most of it */
+    // I also can't pretend I understand this, but hey error checking would be nice - Voidless
+    (void)hinstDLL; // Discard the unused parameters
+    (void)lpvReserved;
 
-VOID WINAPI MyExitProcess(UINT uExitCode)
-{
-    // Do nothing
-}
-
-// Install all detour hooks
-static void InstallDetourHooks()
-{
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-
-    struct HookPair
-    {
-        PVOID *ppOriginal;
-        PVOID pHook;
-    };
-
-    HookPair hooks[] = {
-        {reinterpret_cast<PVOID *>(&Original_GetSystemMetrics), reinterpret_cast<PVOID>(Hooked_GetSystemMetrics)},
-        {reinterpret_cast<PVOID *>(&Original_TerminateProcess), reinterpret_cast<PVOID>(Hooked_TerminateProcess)},
-        {reinterpret_cast<PVOID *>(&Original_ExitProcess), reinterpret_cast<PVOID>(MyExitProcess)}};
-
-    for (const auto &hook : hooks)
-    {
-        if (DetourAttach(hook.ppOriginal, hook.pHook) != NO_ERROR)
-        {
-            DetourTransactionAbort();
-            return;
-        }
-    }
-
-    if (DetourTransactionCommit() != NO_ERROR)
-    {
-        DetourTransactionAbort();
-    }
-}
-
-static void UninstallDetourHooks()
-{
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-
-    struct HookPair
-    {
-        PVOID *ppOriginal;
-        PVOID pHook;
-    };
-
-    HookPair hooks[] = {
-        {reinterpret_cast<PVOID *>(&Original_GetSystemMetrics), reinterpret_cast<PVOID>(Hooked_GetSystemMetrics)},
-        {reinterpret_cast<PVOID *>(&Original_TerminateProcess), reinterpret_cast<PVOID>(Hooked_TerminateProcess)},
-        {reinterpret_cast<PVOID *>(&Original_ExitProcess), reinterpret_cast<PVOID>(MyExitProcess)}};
-
-    for (auto &hook : hooks)
-    {
-        if (DetourDetach(hook.ppOriginal, hook.pHook) != NO_ERROR)
-        {
-            DetourTransactionAbort();
-            return;
-        }
-    }
-
-    if (DetourTransactionCommit() != NO_ERROR)
-    {
-        DetourTransactionAbort();
-    }
-}
-
-// DllMain using Detours for all hooks
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
-{
     if (DetourIsHelperProcess())
     {
         return TRUE;
     }
 
-    switch (ul_reason_for_call)
+    if (fdwReason == DLL_PROCESS_ATTACH)
     {
-    case DLL_PROCESS_ATTACH:
-        DisableThreadLibraryCalls(hModule);
-        // Install detour hooks for GetSystemMetrics, TerminateProcess and ExitProcess
-        InstallDetourHooks();
-        break;
-    case DLL_PROCESS_DETACH:
-        // Uninstall detour hooks
-        UninstallDetourHooks();
-        break;
+        DetourRestoreAfterWith();
+
+        DetourTransactionBegin();
+        if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR)
+        {
+            DetourTransactionAbort();
+            return FALSE;
+        }
+        if (DetourAttach(&(PVOID &)Original_GetSystemMetrics, Hooked_GetSystemMetrics) != NO_ERROR)
+        {
+            DetourTransactionAbort();
+            return FALSE;
+        }
+        if (DetourTransactionCommit() != NO_ERROR)
+        {
+            DetourTransactionAbort();
+            return FALSE;
+        }
+    }
+    else if (fdwReason == DLL_PROCESS_DETACH)
+    {
+        DetourTransactionBegin();
+        if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR)
+        {
+            DetourTransactionAbort();
+            return FALSE;
+        }
+        if (DetourDetach(&(PVOID &)Original_GetSystemMetrics, Hooked_GetSystemMetrics) != NO_ERROR)
+        {
+            DetourTransactionAbort();
+            return FALSE;
+        }
+        if (DetourTransactionCommit() != NO_ERROR)
+        {
+            DetourTransactionAbort();
+            return FALSE;
+        }
     }
     return TRUE;
 }

@@ -1,11 +1,9 @@
 <!-- Lockdown Browser in Windows Sandbox
      https://github.com/gucci-on-fleek/lockdown-browser
-     SPDX-licence-Identifier: MPL-2.0+ OR CC-BY-SA-4.0+
+     SPDX-license-Identifier: MPL-2.0+ OR CC-BY-SA-4.0+
      SPDX-FileCopyrightText: 2020-2025 gucci-on-fleek and Voidless7125
 -->
 # _Lockdown Browser_ in _Windows Sandbox_
-
-![Example screenshot](docs/Example_1.png)
 
 [View Demo Video](https://user-images.githubusercontent.com/49086429/143725579-42cd9f47-4462-4a54-aa8a-8419bfdebb68.mp4)
 
@@ -125,8 +123,8 @@ If you’re having any difficulties installing the prerequisites or have any oth
 
 I will also usually reply to emails, but I have a _very_ busy schedule, so it may take a while (many months) for me to respond, and I will often ask you to post an issue on GitHub. So, to reiterate, the best way to get support is to post [an issue](https://github.com/gucci-on-fleek/lockdown-browser/issues/new) or [a discussion](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new) here on GitHub.
 
-## Licence
+## License
 
 All code is licensed under the [_Mozilla Public License_, version 2.0](https://www.mozilla.org/en-US/MPL/2.0/) or greater. The documentation is licensed under [CC-BY-SA, version 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode) or greater, in addition to the MPL. The _Detours_ submodule has an MIT licence as detailed in `Detours/LICENSE.md`.
 
-In addition to the formal licence terms, I would appreciate it if users do not distribute any binaries: I intend for this project to be merely a proof-of-concept, and any binaries circulating on the internet diminish this status. Of course, you are within your rights to ignore this request, but I would appreciate it if you would respect my wishes. Thanks!
+In addition to the formal licence terms, I would appreciate it if users do not distribute any binaries: I intend this project to be merely a proof-of-concept, and any binaries circulating on the internet diminish this status. Of course, you are well within your rights to ignore this request, but I would appreciate it if you would respect my wishes. Thanks!
