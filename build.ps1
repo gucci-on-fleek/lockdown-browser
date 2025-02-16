@@ -1,3 +1,8 @@
+# Lockdown Browser in Windows Sandbox
+# https://github.com/gucci-on-fleek/lockdown-browser
+# SPDX-License-Identifier: MPL-2.0+
+# SPDX-FileCopyrightText: 2020-2025 gucci-on-fleek and Voidless7125
+
 param(
     [switch]$Clean, # If passed, remove directories/files as specified.
     [switch]$Logs  # If passed, zip the logs folder after the build.
@@ -36,7 +41,9 @@ if ($Clean) {
             "runtime_directory\GetSystemMetrics-Hook.dll",
             "runtime_directory\sandbox.wsb",
             "runtime_directory\sandbox-with-Microphone-Camera.wsb",
-            "runtime_directory\withdll.exe"
+            "runtime_directory\withdll.exe",
+            "\Detours",
+            "\Build"
         )
         foreach ($relativePath in $filesToDelete) {
             $filePath = Join-Path $PSScriptRoot $relativePath
@@ -66,8 +73,7 @@ if ($Logs) {
         Add-Content -Path $all_logs_path -Value "=== $($_.Name) ==="
         Add-Content -Path $all_logs_path -Value ""
         Get-Content $_.FullName | Add-Content -Path $all_logs_path
-        Add-Content -Path $all_logs_path -Value ""
-        Add-Content -Path $all_logs_path -Value ""
+        Add-Content -Path $all_logs_path -Value "\n\n"
     }
     Write-Log "Logs put in one file to $all_logs_path"
     exit
@@ -167,13 +173,13 @@ function Copy-Files {
     Write-Log "Files copied to runtime directory"
 }
 
-function Get-System-Info {
+function Get-SystemInfo {
     Write-Log "Selected system information:"
     $os = Get-CimInstance Win32_OperatingSystem
     Write-Log "Architecture: $($os.OSArchitecture)"
     Write-Log "Windows Version: $($os.Caption)"
     Write-Log "Windows Build: $($os.BuildNumber)"
-    if ($os.Caption -match "(Home|Pro||Pro For Workstations|Enterprise)") {
+    if ($os.Caption -match "(Home|Pro|Pro For Workstations|Enterprise)") {
         if ($matches[0] -eq "Home") {
             throw "Unsupported Windows edition: Home. Pro or higher is required."
         }
@@ -182,7 +188,12 @@ function Get-System-Info {
     else {
         Write-Log "Windows Edition: Unknown"
     }
-    
+    if (Test-Path "$env:windir\System32\WindowsSandbox.exe") {
+        Write-Log "Windows Sandbox is installed."
+    }
+    else {
+        throw "Windows Sandbox is not installed."
+    }
     $av_status = Get-MpComputerStatus
     Write-Log "Antivirus Real-Time Protection: $($av_status.RealTimeProtectionEnabled)"
     $vpn_connections = Get-VpnConnection
@@ -219,7 +230,7 @@ function Get-System-Info {
 try {
     Write-Log "----------------------------------------"
     Write-Log "Build script started"
-    Get-System-Info
+    Get-SystemInfo
     Initialize-VS
     Invoke-DetoursBuild
     New-Hook
