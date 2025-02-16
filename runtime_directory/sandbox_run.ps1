@@ -49,12 +49,12 @@ else {
 function Remove-SystemInfo {
     Write-Log "Removing system information..."
     Set-ExecutionPolicy -ExecutionPolicy Bypass -Force
-    Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion -ErrorAction Ignore
-    Remove-Item -Path "HKLM:\HARDWARE\DESCRIPTION\System\BIOS" -ErrorAction Ignore
+    Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion
+    Remove-Item -Path "HKLM:\HARDWARE\DESCRIPTION\System\BIOS"
     $vmcompute_path = [System.Environment]::GetFolderPath("System") + "\VmComputeAgent.exe"
     takeown /f $vmcompute_path
     icacls $vmcompute_path /grant "Everyone:(D)"
-    Remove-Item -Path $vmcompute_path -ErrorAction Ignore
+    Remove-Item -Path $vmcompute_path
     Write-Log "Removed system information successfully."
 }
 
@@ -63,7 +63,7 @@ function Install-LockdownBrowser {
         Write-Log "Installing Lockdown Browser OEM..."
         & $lockdown_installer /s /r
         Write-Log "OEM installer executed."
-        while (-not (Get-Process -Name *ISBEW64* -ErrorAction SilentlyContinue)) {
+        while (-not (Get-Process -Name *ISBEW64*)) {
             Start-Sleep -Seconds 0.25
         }
         Wait-Process -Name *ISBEW64*
