@@ -240,5 +240,6 @@ try {
 }
 catch {
     Write-Log "An error occurred: $($_.Exception.Message) - $($_.Exception.StackTrace)"
+    Set-Location $PSScriptRoot  # Put you back rather than random places in the script. -Voidless7125
     throw
 }
