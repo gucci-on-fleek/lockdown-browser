@@ -72,6 +72,48 @@ Make sure to **clone** the repository and run `build.ps1`. Then, [install the _W
  (_Alternative_) If you want to pass your microphone and camera to the _Lockdown Browser_, run `Sandbox-with-Microphone-Camera.wsb` instead.
 4. Go to your test and open it. The _Lockdown Browser_ will launch, and you can then use it to complete your test.
 
+## Versions
+
+The `release` branch (default) will always point to the latest stable
+release. You should usually use this branch since it is the most
+well-tested. To switch to this branch (not generally necessary since
+it’s the default), run:
+
+```powershell
+git switch release
+```
+
+The `master` branch will always point to the latest development version.
+This branch has been tested and should _generally_ be safe to use, but
+it will often have minor issues that have not been fixed yet. You should
+use this branch if it contains a feature or fix you need that is not in
+the `release` branch, or if the `release` branch isn’t working for you
+and you’re feeling adventurous. To switch to this branch, run:
+
+```powershell
+git switch master
+```
+
+The `dev` branch contains in-progress work, is often broken, and should
+only be used if you were specifically asked to test it. To switch to
+this branch, run:
+
+```powershell
+git switch dev
+```
+
+If something isn’t working but was previously, you can always switch to
+a previous release by running:
+
+```powershell
+git switch --detach <tag>
+```
+
+where `<tag>` is the tag of the release you want to switch to. You can
+[browse the list of releases on
+GitHub](https://github.com/gucci-on-fleek/lockdown-browser/releases) in
+case you’re unsure which tag to choose.
+
 ## Common Issues
 
 ### The _Browser_ updates itself, then it stops working
