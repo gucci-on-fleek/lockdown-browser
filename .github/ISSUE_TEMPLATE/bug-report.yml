@@ -27,7 +27,7 @@ body:
         - label: >
             If you get a "the setup configuration provider is not registered" error message, have you [installed the "Visual Studio C++ Tools"](https://github.com/gucci-on-fleek/lockdown-browser?tab=readme-ov-file#system-requirements)?
           required: true
-        - label: > 
+        - label: >
             You have tried rebuilding from scratch (Reset your build with `./build.ps1 -Clean`, then run ./build.ps1` to build again).
 
   - type: textarea
@@ -59,7 +59,7 @@ body:
 
         - Paste the _exact_ wording of the error message here; or
         - Take a screenshot and upload the image here (preferred).
-        - Provide the log file paths or attach log files via a comment. 
+        - Provide the log file paths or attach log files via a comment.
         - You can get all logs by running `./build.ps1 -Logs`.
 
   - type: dropdown

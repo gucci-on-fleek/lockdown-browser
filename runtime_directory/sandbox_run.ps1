@@ -175,7 +175,7 @@ Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
     elseif ($version.Build -ge 22000 -and $version.Build -lt 27686) {
         [System.Windows.Forms.MessageBox]::Show("Warning: On Windows 11 (22H2-24H2), the camera and mic may not work. Versions after 27686 don't have this issue.", "Warning", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
     }
-    
+
     # Ask the user if they want to test launch LockDown Browser.
     $result = [System.Windows.Forms.MessageBox]::Show("Do you want to test launch Lockdown Browser to ensure that there are no errors? (Highly recommended).", "Test LockDown Browser", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
     if ($result -eq [System.Windows.Forms.DialogResult]::Yes) {
