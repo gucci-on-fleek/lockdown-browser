@@ -32,6 +32,8 @@ Set-Location $PSScriptRoot
 $lockdown_extract_dir = "C:\Windows\Temp\Lockdown"
 $lockdown_installer = Get-ChildItem *LockDown*.exe | Select-Object -First 1
 if (-not $lockdown_installer) {
+    Write-Log "No Lockdown installer found in the current directory."
+    [System.Windows.Forms.MessageBox]::Show("No Lockdown installer found in the current directory. This has been logged into the logs folder on the host.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
     throw "No Lockdown installer found in the current directory. Exiting..."
 }
 elseif ($lockdown_installer.Name -like "LockDownBrowser-*.exe") {
