@@ -1,6 +1,6 @@
 <!-- Lockdown Browser in Windows Sandbox
      https://github.com/gucci-on-fleek/lockdown-browser
-     SPDX-license-Identifier: MPL-2.0+ OR CC-BY-SA-4.0+
+     SPDX-License-Identifier: MPL-2.0+ OR CC-BY-SA-4.0+
      SPDX-FileCopyrightText: 2020-2025 gucci-on-fleek and Voidless7125
 -->
 # _Lockdown Browser_ in _Windows Sandbox_
