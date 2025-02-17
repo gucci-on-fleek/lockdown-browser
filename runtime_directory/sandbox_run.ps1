@@ -7,6 +7,8 @@
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 3
+Add-Type -AssemblyName System.Windows.Forms
+[System.Windows.Forms.Application]::EnableVisualStyles()
 
 # Create log file on the desktop
 $desktop_path = [System.Environment]::GetFolderPath("Desktop")
@@ -23,7 +25,7 @@ function Write-Log {
 # Check if running as WDAGUtilityAccount (Sandbox)
 if ($env:USERNAME -ne "WDAGUtilityAccount") {
     Write-Log "This script is intended to run only in Windows Sandbox. Exiting..."
-    exit 1
+    throw $_
 }
 
 Set-Location $PSScriptRoot
@@ -31,27 +33,28 @@ Set-Location $PSScriptRoot
 $lockdown_extract_dir = "C:\Windows\Temp\Lockdown"
 $lockdown_installer = Get-ChildItem *LockDown*.exe | Select-Object -First 1
 if (-not $lockdown_installer) {
-    Write-Log "No Lockdown installer found in the current directory. Exiting..."
-    exit 1
+    throw "No Lockdown installer found in the current directory. Exiting..."
 }
 elseif ($lockdown_installer.Name -like "LockDownBrowser-*.exe") {
     $is_oem = $false
     $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser\LockDownBrowser.exe"
+    $browser_icon = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser\LockDownBrowser.ico"
 }
 else {
     $is_oem = $true
     $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe"
+    $browser_icon = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser OEM\LockDownBrowser.ico"
 }
 
 function Remove-SystemInfo {
     Write-Log "Removing system information..."
     Set-ExecutionPolicy -ExecutionPolicy Bypass -Force
-    Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion -ErrorAction Ignore
-    Remove-Item -Path "HKLM:\HARDWARE\DESCRIPTION\System\BIOS" -ErrorAction Ignore
+    Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion
+    Remove-Item -Path "HKLM:\HARDWARE\DESCRIPTION\System\BIOS"
     $vmcompute_path = [System.Environment]::GetFolderPath("System") + "\VmComputeAgent.exe"
     takeown /f $vmcompute_path
     icacls $vmcompute_path /grant "Everyone:(D)"
-    Remove-Item -Path $vmcompute_path -ErrorAction Ignore
+    Remove-Item -Path $vmcompute_path
     Write-Log "Removed system information successfully."
 }
 
@@ -60,7 +63,7 @@ function Install-LockdownBrowser {
         Write-Log "Installing Lockdown Browser OEM..."
         & $lockdown_installer /s /r
         Write-Log "OEM installer executed."
-        while (-not (Get-Process -Name *ISBEW64* -ErrorAction SilentlyContinue)) {
+        while (-not (Get-Process -Name *ISBEW64*)) {
             Start-Sleep -Seconds 0.25
         }
         Wait-Process -Name *ISBEW64*
@@ -73,20 +76,25 @@ function Install-LockdownBrowser {
         Wait-Process -Name *Lockdown* # For some weird reason, if the extracter gets killed the installer can fail sometimes on missing a file.
         # You get get a prompt saying it's been extracted, so just click okay.
         if (-not (Test-Path "$lockdown_extract_dir\setup.exe")) {
-            Write-Log "Setup file not found after extraction. Exiting..."
-            exit 1
+            throw "Setup file not found after extraction. Exiting..."
         }
         Write-Log "Installing Lockdown Browser..."
         & "$lockdown_extract_dir\setup.exe" /s "/f1$PSScriptRoot\setup.iss" "/f2$PSScriptRoot\..\logs\setup.log"
         Write-Log "Setup executed."
         Wait-Process -Name *ISBEW64*
-    }
-    # Remove existing shortcut if it exists
-    $public_desktop_path = "C:\Users\Public\Desktop"
-    $shortcut_path = Join-Path -Path $public_desktop_path -ChildPath "LockDown Browser.lnk"
-    if (Test-Path $shortcut_path) {
-        Remove-Item -Path $shortcut_path -Force
-        Write-Log "Removed existing LockDown Browser shortcut from public desktop."
+        $shortcut = "C:\Users\Public\Desktop\LockDown Browser.lnk"
+        1..20 | ForEach-Object {
+            if (Test-Path $shortcut) { return }
+            Start-Sleep -Milliseconds 500
+            # It needs to be 500, its not reliable at 100.
+        }
+        if (Test-Path $shortcut) {
+            Remove-Item $shortcut -Force
+            Write-Log "Removed existing LockDown Browser shortcut."
+        }
+        else {
+            Write-Log "Shortcut not found after waiting."
+        }
     }
 }
 
@@ -95,10 +103,10 @@ function Register-URLProtocol {
     New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
     if ($is_oem) {
         # I got the urls from installing LDB OEM and looking in the registry for :Lockdown Browser OEM and found all these HKCR keys.
-        $urls = @("anst", "cllb", "ibz", "ielb", "jnld", "jzl", "ldb", "ldb1", "pcgs", "plb", "pstg", "rzi", "uwfb", "xmxg")
-        foreach ($url in $urls) {
-            Set-ItemProperty -Path "HKCR:\${url}\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
-            Write-Log "Successfully set item property for URL protocol $url."
+        $protocols = @("anst", "cllb", "ibz", "ielb", "jnld", "jzl", "ldb", "ldb1", "pcgs", "plb", "pstg", "rzi", "uwfb", "xmxg")
+        foreach ($protocol in $protocols) {
+            Set-ItemProperty -Path "HKCR:\$protocol\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
+            Write-Log "Successfully set item property for URL protocol $protocol."
         }
     }
     else {
@@ -109,10 +117,10 @@ function Register-URLProtocol {
 
 function New-RunLockdownBrowserScript {
     Write-Log "Creating run script on desktop..."
+    # Build the script content.
     if ($is_oem) {
         $script_content = @'
 $url = Read-Host -Prompt "Please enter the URL"
-# Change directory and run the command
 Set-Location "C:\Users\WDAGUtilityAccount\Desktop\runtime_directory"
 ./withdll /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe" $url
 '@
@@ -131,19 +139,44 @@ Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
     $shortcut.Arguments = "-File `"$script_path`""
     $shortcut.WorkingDirectory = $desktop_path
     $shortcut.WindowStyle = 1
-    if ($is_oem) {
-        $shortcut.IconLocation = "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowser.ico"
+    $shortcut.IconLocation = $browser_icon
+    $shortcut.Save()
+
+    # Remove existing Start Menu shortcut if it exists.
+    $start_shortcut_path = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Respondus\LockDown Browser.lnk"
+    1..20 | ForEach-Object {
+        if (Test-Path $start_shortcut_path) { return }
+        Start-Sleep -Milliseconds 100
+    }
+    if (Test-Path $start_shortcut_path) {
+        Remove-Item $start_shortcut_path -Force
+        Write-Log "Removed existing LockDown Browser start menu shortcut."
     }
     else {
-        $shortcut.IconLocation = "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.ico"
+        Write-Log "Start Menu Shortcut not found after waiting."
     }
-    $shortcut.Save()
-    Write-Log "Run script and shortcut created on desktop."
 
-    # Create a pop-up to test for errors
-    # Win 11/10 style message box
-    Add-Type -AssemblyName System.Windows.Forms
-    [System.Windows.Forms.Application]::EnableVisualStyles()
+    # Create new Start Menu shortcut.
+    $wscriptShell = New-Object -ComObject WScript.Shell
+    $start_menu_shortcut_object = $wscriptShell.CreateShortcut($start_shortcut_path)
+    $start_menu_shortcut_object.TargetPath = "powershell.exe"
+    $start_menu_shortcut_object.Arguments = "-File `"$script_path`""
+    $start_menu_shortcut_object.WorkingDirectory = Split-Path $script_path
+    $start_menu_shortcut_object.IconLocation = $browser_icon
+    $start_menu_shortcut_object.Save()
+    Write-Log "Run script, shortcut, and start menu shortcut created."
+
+    # Display warnings based on Windows version.
+    $os = Get-CimInstance Win32_OperatingSystem
+    $version = [Version]$os.Version
+    if ($version.Build -lt 22000) {
+        [System.Windows.Forms.MessageBox]::Show("Warning: On Windows 10, you will be detected if you minimize the window.", "Warning", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+    }
+    elseif ($version.Build -ge 22000 -and $version.Build -lt 27686) {
+        [System.Windows.Forms.MessageBox]::Show("Warning: On Windows 11 (22H2-24H2), the camera and mic may not work. Versions after 27686 don't have this issue.", "Warning", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+    }
+
+    # Ask the user if they want to test launch LockDown Browser.
     $result = [System.Windows.Forms.MessageBox]::Show("Do you want to test launch Lockdown Browser to ensure that there are no errors? (Highly recommended).", "Test LockDown Browser", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
     if ($result -eq [System.Windows.Forms.DialogResult]::Yes) {
         if ($is_oem) {
@@ -156,10 +189,10 @@ Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
     }
 }
 
-Write-Log "----------------------------------------"
-Write-Log "Script started."
-
 try {
+    # Functions in PowerShell are supposed to be like this, just learned.
+    Write-Log "----------------------------------------"
+    Write-Log "Script started."
     Remove-SystemInfo
     Install-LockdownBrowser
     Register-URLProtocol
@@ -168,8 +201,6 @@ try {
 }
 catch {
     Write-Log "An error occurred: $_"
-    Add-Type -AssemblyName System.Windows.Forms
-    [System.Windows.Forms.Application]::EnableVisualStyles()
-    [System.Windows.Forms.MessageBox]::Show("An error occurred: $($_.Exception.Message)", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    [System.Windows.Forms.MessageBox]::Show("An error occurred: $($_.Exception.Message) This has been logged into the logs folder on the host.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
     exit 1
 }
