@@ -27,6 +27,8 @@ body:
         - label: >
             If you get a "the setup configuration provider is not registered" error message, have you [installed the "Visual Studio C++ Tools"](https://github.com/gucci-on-fleek/lockdown-browser?tab=readme-ov-file#system-requirements)?
           required: true
+        - label: >
+            You have tried rebuilding from scratch (Reset your build with `./build.ps1 -Clean`, then run ./build.ps1` to build again).
 
   - type: textarea
     attributes:
@@ -56,8 +58,9 @@ body:
         If there were any error messages or warning dialogs displayed, please either
 
         - Paste the _exact_ wording of the error message here; or
-        -
         - Take a screenshot and upload the image here (preferred).
+        - Provide the log file paths or attach log files via a comment.
+        - You can get all logs by running `./build.ps1 -Logs`.
 
   - type: dropdown
     attributes:
@@ -79,7 +82,7 @@ body:
       label: Lockdown Browser Version
       description: |
         The version of your _Lockdown Browser_ `.exe` file.
-      placeholder: "2.1.2.04"
+      placeholder: "2.1.3.00"
     validations:
       required: true
 
@@ -92,7 +95,7 @@ body:
         ```powershell
         Get-ComputerInfo | Select-Object OsVersion, WindowsVersion
         ```
-      placeholder: "Windows 10 21H2 (Build 19044.1645)"
+      placeholder: "Windows 10 22H2 (Build 19045.5487)"
     validations:
       required: true
 
