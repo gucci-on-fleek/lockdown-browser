@@ -5,7 +5,7 @@
 -->
 # _Lockdown Browser_ in _Windows Sandbox_
 
-[View Demo Video](https://user-images.githubusercontent.com/49086429/143725579-42cd9f47-4462-4a54-aa8a-8419bfdebb68.mp4)
+[View Demo Video](https://github.com/user-attachments/assets/46c9f405-2c2b-4576-b06f-82daf07b1db3)
 
 ## What is this?
 
