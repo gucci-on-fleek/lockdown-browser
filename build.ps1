@@ -34,10 +34,10 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
 # If removal flag -Clean is passed, check for the .git folder; if missing, delete specified files.
 if ($Clean) {
     Write-Log "Removal flag specified (-Clean): Checking for .git folder."
-    $gitFolder = Join-Path $PSScriptRoot ".git"
-    if (-not (Test-Path $gitFolder)) {
+    $git_folder = Join-Path $PSScriptRoot ".git"
+    if (-not (Test-Path $git_folder)) {
         Write-Log ".git folder is missing. Deleting specified build files."
-        $filesToDelete = @(
+        $files_to_delete = @(
             "runtime_directory\GetSystemMetrics-Hook.dll",
             "runtime_directory\sandbox.wsb",
             "runtime_directory\sandbox-with-Microphone-Camera.wsb",
@@ -45,14 +45,14 @@ if ($Clean) {
             "\Detours",
             "\Build"
         )
-        foreach ($relativePath in $filesToDelete) {
-            $filePath = Join-Path $PSScriptRoot $relativePath
-            if (Test-Path $filePath) {
-                Remove-Item $filePath -Force
-                Write-Log "Deleted file: $filePath"
+        foreach ($relative_path in $files_to_delete) {
+            $file_path = Join-Path $PSScriptRoot $relative_path
+            if (Test-Path $file_path) {
+                Remove-Item $file_path -Force
+                Write-Log "Deleted file: $file_path"
             }
             else {
-                Write-Log "File not found, skipping deletion: $filePath"
+                Write-Log "File not found, skipping deletion: $file_path"
             }
         }
     }
@@ -145,7 +145,7 @@ function New-Hook {
         '../Detours\lib.X86\detours.lib' `
         '../Detours\lib.X86\syelog.lib' `
         'user32.lib'
-    # Most of these are pretty standard VS C++ compiler options, but of note is "/export:DetourFinishHelperProcess,@1,NONAME". 
+    # Most of these are pretty standard VS C++ compiler options, but of note is "/export:DetourFinishHelperProcess,@1,NONAME".
     # The program will not be functional without this argument, but it isn't that well documented.
     Pop-Location
     Write-Log "Hook built"
