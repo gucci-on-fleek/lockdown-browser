@@ -24,8 +24,8 @@ function Write-Log {
 
 # Check if running as WDAGUtilityAccount (Sandbox)
 if ($env:USERNAME -ne "WDAGUtilityAccount") {
-    Write-Log "This script is intended to run only in Windows Sandbox. Exiting..."
-    throw $_
+    throw "This script is intended to run only in Windows Sandbox. Exiting..."
+    pause
 }
 
 Set-Location $PSScriptRoot
@@ -33,17 +33,23 @@ Set-Location $PSScriptRoot
 $lockdown_extract_dir = "C:\Windows\Temp\Lockdown"
 $lockdown_installer = Get-ChildItem *LockDown*.exe | Select-Object -First 1
 if (-not $lockdown_installer) {
+    Write-Log "No Lockdown installer found in the current directory."
+    [System.Windows.Forms.MessageBox]::Show("No Lockdown installer found in the current directory. This has been logged into the logs folder on the host.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
     throw "No Lockdown installer found in the current directory. Exiting..."
 }
 elseif ($lockdown_installer.Name -like "LockDownBrowser-*.exe") {
     $is_oem = $false
     $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser\LockDownBrowser.exe"
     $browser_icon = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser\LockDownBrowser.ico"
+    $protocols = @("rldb")
+
 }
 else {
     $is_oem = $true
     $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe"
     $browser_icon = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser OEM\LockDownBrowser.ico"
+    # I got the urls from installing LDB OEM and looking in the registry for :Lockdown Browser OEM and found all these HKCR keys.
+    $protocols = @("anst", "cllb", "ibz", "ielb", "jnld", "jzl", "ldb", "ldb1", "pcgs", "plb", "pstg", "rzi", "uwfb", "xmxg")
 }
 
 function Remove-SystemInfo {
@@ -101,17 +107,9 @@ function Install-LockdownBrowser {
 function Register-URLProtocol {
     Write-Log "Registering URL protocol(s)..."
     New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
-    if ($is_oem) {
-        # I got the urls from installing LDB OEM and looking in the registry for :Lockdown Browser OEM and found all these HKCR keys.
-        $protocols = @("anst", "cllb", "ibz", "ielb", "jnld", "jzl", "ldb", "ldb1", "pcgs", "plb", "pstg", "rzi", "uwfb", "xmxg")
-        foreach ($protocol in $protocols) {
-            Set-ItemProperty -Path "HKCR:\$protocol\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
-            Write-Log "Successfully set item property for URL protocol $protocol."
-        }
-    }
-    else {
-        Set-ItemProperty -Path "HKCR:\rldb\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
-        Write-Log "Successfully set item property for URL protocol rldb."
+    foreach ($protocol in $protocols) {
+        Set-ItemProperty -Path "HKCR:\$protocol\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
+        Write-Log "Successfully set item property for URL protocol $protocol."
     }
 }
 
