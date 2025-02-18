@@ -25,6 +25,7 @@ function Write-Log {
 # Check if running as WDAGUtilityAccount (Sandbox)
 if ($env:USERNAME -ne "WDAGUtilityAccount") {
     throw "This script is intended to run only in Windows Sandbox. Exiting..."
+    pause
 }
 
 Set-Location $PSScriptRoot
@@ -41,7 +42,7 @@ elseif ($lockdown_installer.Name -like "LockDownBrowser-*.exe") {
     $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser\LockDownBrowser.exe"
     $browser_icon = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser\LockDownBrowser.ico"
     $protocols = @("rldb")
- 
+
 }
 else {
     $is_oem = $true
