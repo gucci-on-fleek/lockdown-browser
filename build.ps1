@@ -38,11 +38,8 @@ if ($Clean) {
     if (-not (Test-Path $git_folder)) {
         Write-Log ".git folder is missing. Deleting specified build files."
         $files_to_delete = @(
-            "runtime_directory\GetSystemMetrics-Hook.dll",
             "runtime_directory\sandbox.wsb",
             "runtime_directory\sandbox-with-Microphone-Camera.wsb",
-            "runtime_directory\withdll.exe",
-            "\Detours",
             "\Build"
         )
         foreach ($relative_path in $files_to_delete) {
@@ -115,42 +112,6 @@ function Initialize-VS {
     Write-Log "Visual Studio environment initialized"
 }
 
-function Invoke-DetoursBuild {
-    Write-Log "Building Detours"
-    git submodule update --init
-    Push-Location Detours\src
-    nmake
-    Pop-Location
-    Push-Location Detours\samples\syelog
-    nmake
-    Pop-Location
-    Push-Location Detours\samples\withdll
-    nmake
-    Pop-Location
-    Write-Log "Detours built"
-}
-
-function New-Hook {
-    Write-Log "Building hook"
-    mkdir './build' -Force
-    Push-Location build
-    cl '/EHsc' `
-        '/LD' `
-        '/Fe:GetSystemMetrics-Hook.dll' `
-        '../src/GetSystemMetrics-Hook.cpp' `
-        '/I../Detours/include' `
-        '/link' '/nodefaultlib:oldnames.lib' `
-        '/export:DetourFinishHelperProcess,@1,NONAME' `
-        '/export:GetSystemMetrics' `
-        '../Detours\lib.X86\detours.lib' `
-        '../Detours\lib.X86\syelog.lib' `
-        'user32.lib'
-    # Most of these are pretty standard VS C++ compiler options, but of note is "/export:DetourFinishHelperProcess,@1,NONAME".
-    # The program will not be functional without this argument, but it isn't that well documented.
-    Pop-Location
-    Write-Log "Hook built"
-}
-
 function Initialize-Sandbox {
     Write-Log "Building sandbox configuration"
     $host_folder_path = Join-Path -Path $PSScriptRoot -ChildPath 'runtime_directory'
@@ -165,8 +126,6 @@ function Initialize-Sandbox {
 function Copy-Files {
     Write-Log "Copying files to runtime directory"
     Push-Location runtime_directory
-    Copy-Item ../Detours/bin.X86/withdll.exe .
-    Copy-Item ../build/GetSystemMetrics-Hook.dll .
     Copy-Item ../build/Sandbox.wsb .
     Copy-Item ../build/Sandbox-with-Microphone-Camera.wsb .
     Pop-Location
@@ -232,8 +191,6 @@ try {
     Write-Log "Build script started"
     Get-SystemInfo
     Initialize-VS
-    Invoke-DetoursBuild
-    New-Hook
     Initialize-Sandbox
     Copy-Files
     Write-Log "Build script completed"
