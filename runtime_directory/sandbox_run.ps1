@@ -55,8 +55,8 @@ else {
 function Remove-SystemInfo {
     Write-Log "Removing system information..."
     Set-ExecutionPolicy -ExecutionPolicy Bypass -Force
-    Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion
-    Remove-Item -Path "HKLM:\HARDWARE\DESCRIPTION\System\BIOS"
+    Get-ChildItem -Path "HKLM:\HARDWARE\DESCRIPTION" | Remove-ItemProperty -Name SystemBiosVersion -ErrorAction Ignore
+    Remove-Item -Path "HKLM:\HARDWARE\DESCRIPTION\System\BIOS" -ErrorAction Ignore
     $vmcompute_path = [System.Environment]::GetFolderPath("System") + "\VmComputeAgent.exe"
     takeown /f $vmcompute_path
     icacls $vmcompute_path /grant "Everyone:(D)"
