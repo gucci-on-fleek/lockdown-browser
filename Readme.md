@@ -69,8 +69,50 @@ Make sure to **clone** the repository and run `build.ps1`. Then, [install the _W
 2. Download the _Respondus Lockdown Browser_ and place it in `runtime_directory\`.
 3. Double-click `Sandbox.wsb` (it’s in `runtime_directory\`)
 
- (_Alternative_) If you want to pass your microphone and camera to the _Lockdown Browser_, run `Sandbox-with-Microphone-Camera.wsb` instead.
+   (_Alternative_) If you want to pass your microphone and camera to the _Lockdown Browser_, run `Sandbox-with-Microphone-Camera.wsb` instead.
 4. Go to your test and open it. The _Lockdown Browser_ will launch, and you can then use it to complete your test.
+
+## Versions
+
+The `release` branch (default) always points to the latest stable
+release. You should use this branch since it is the most
+well-tested. To switch to this branch (not generally necessary since
+it’s the default), run:
+
+```powershell
+git switch release
+```
+
+The `master` branch will always point to the latest development version.
+This branch has been tested and should _generally_ be safe to use, but
+it will often have minor issues that have not been fixed yet. You should
+use this branch if it contains a feature or fix you need that is not in
+the `release` branch or if the `release` branch isn’t working for you
+and you’re feeling adventurous. To switch to this branch, run the following:
+
+```powershell
+git switch master
+```
+
+The `dev` branch contains in-progress work, is often broken, and should
+only be used if you were specifically asked to test it. To switch to
+this branch, run the following:
+
+```powershell
+git switch dev
+```
+
+If something isn’t working but was previously, you can always switch to
+a previous release by running:
+
+```powershell
+git switch --detach <tag>
+```
+
+where `<tag>` is the tag of the release you want to switch to. You can
+[browse the list of releases on
+GitHub](https://github.com/gucci-on-fleek/lockdown-browser/releases) in
+case you’re unsure which tag to choose.
 
 ## Common Issues
 
@@ -91,7 +133,7 @@ cd C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
 .\withdll.exe /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
 ```
 
-(OEM versions of the _Lockdown Browser_ must have a URL at the end; `ldb:dh%7BKS6poDqwsi1SHVGEJ+KMYaelPZ56lqcNzohRRiV1bzFj3Hjq8lehqEug88UjowG1mK1Q8h2Rg6j8kFZQX0FdyA==%7D` is a good default)
+(OEM versions of the _Lockdown Browser_ **must** have a URL at the end; `ldb:dh%7BKS6poDqwsi1SHVGEJ+KMYaelPZ56lqcNzohRRiV1bzFj3Hjq8lehqEug88UjowG1mK1Q8h2Rg6j8kFZQX0FdyA==%7D` is a good default)
 
 Of course, this is usually symptomatic of another issue, so please ensure you have followed all the earlier instructions.
 
