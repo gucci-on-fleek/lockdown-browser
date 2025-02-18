@@ -9,6 +9,10 @@
             <HostFolder>{{HOST_FOLDER}}</HostFolder>
             <ReadOnly>true</ReadOnly>
         </MappedFolder>
+        <MappedFolder>
+            <HostFolder>{{LOG_FOLDER}}</HostFolder>
+            <ReadOnly>false</ReadOnly>
+        </MappedFolder>
     </MappedFolders>
     <LogonCommand>
         <Command>powershell.exe -ExecutionPolicy Bypass -File C:\Users\wdagutilityaccount\Desktop\runtime_directory\sandbox_run.ps1</Command>

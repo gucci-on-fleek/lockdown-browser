@@ -1,0 +1,123 @@
+# Lockdown Browser in Windows Sandbox
+# https://github.com/gucci-on-fleek/lockdown-browser
+# SPDX-License-Identifier: MPL-2.0+
+# SPDX-FileCopyrightText: 2020-2025 gucci-on-fleek and Voidless7125
+name: Bug Report
+description: Report an issue with "Lockdown Browser in Windows Sandbox"
+labels: ["untriaged"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If this is a general question, please [start a discussion](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new?category=q-a).
+
+        If this is a feature request, please [start a discussion](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new?category=feature-requests), and we'll convert it into an issue once we've triaged it.
+
+        Otherwise, please provide as much information as possible, and we'll hopefully be able to solve your issue.
+
+  - type: checkboxes
+    attributes:
+      label: Common issues
+      description: >
+        The following are the most common issues. Please check both boxes to confirm that your issue is not listed here.
+      options:
+        - label: >
+            If you get a "Terminal Services" error message, have you tried the troubleshooting steps [from the main instructions](https://github.com/gucci-on-fleek/lockdown-browser#you-get-a-terminal-services-error-message)?
+          required: true
+        - label: >
+            If you get a "the setup configuration provider is not registered" error message, have you [installed the "Visual Studio C++ Tools"](https://github.com/gucci-on-fleek/lockdown-browser?tab=readme-ov-file#system-requirements)?
+          required: true
+        - label: >
+            You have tried rebuilding from scratch (Reset your build with `./build.ps1 -Clean`, and it will reset your workspace and build.).
+
+  - type: textarea
+    attributes:
+      label: Issue
+      description: Please _briefly_ describe the issue here.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: |
+        What did you expect to happen? For example:
+        - I expected that the PowerShell script wouldn't give me this error message.
+        - I expected that the _Windows Sandbox_ wouldn't crash.
+        - I expected that the _Lockdown Browser_ wouldn't detect that it's running inside a virtual machine.
+        - I expected my webcam to work properly inside the _Windows Sandbox_.
+
+        If you can't describe what _should_ happen, then this is probably a question and is better suited for a [discussion](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new).
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Error Messages
+      description: |
+        If there were any error messages or warning dialogs displayed, please either
+
+        - Paste the _exact_ wording of the error message here; or
+        - Take a screenshot and upload the image here (preferred).
+        - Provide the log file paths or attach log files via a comment.
+        - You can get all logs by running `./build.ps1 -Logs`.
+
+  - type: dropdown
+    attributes:
+      label: Lockdown Browser Variant
+      description: >
+        Please select the variant of the _Lockdown Browser_ you use.
+      multiple: false
+      options:
+        - Lockdown Browser (no webcam)
+        - Lockdown Browser with Respondus Monitor (with webcam)
+        - Lockdown Browser OEM (no webcam)
+        - Lockdown Browser OEM with Respondus Monitor (with webcam)
+      default: 0
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Lockdown Browser Version
+      description: |
+        The version of your _Lockdown Browser_ `.exe` file.
+      placeholder: "2.1.3.00"
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Windows Version and Build
+      description: |
+        The version **and build** of your Windows OS installation. If you're unsure, you can run the following command in PowerShell:
+
+        ```powershell
+        Get-ComputerInfo | Select-Object OsVersion, WindowsVersion
+        ```
+      placeholder: "Windows 10 22H2 (Build 19045.5487)"
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Repository version
+      description: |
+        Please provide either the commit hash or the release version of the repository you currently use. If you're not sure what this is, run the following command from the repository directory:
+
+        ```powershell
+        git describe --long
+        ```
+      placeholder: "v1.4.0_RC2-0-ga6a8a41"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Other
+      description: Add any other relevant information here. (Optional)
+
+  - type: markdown
+    attributes:
+      value: >
+        Thanks for taking the time to fill out this bug report!

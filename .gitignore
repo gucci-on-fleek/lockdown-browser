@@ -2,13 +2,14 @@
 # https://github.com/gucci-on-fleek/lockdown-browser
 # SPDX-License-Identifier: MPL-2.0+ OR CC-BY-SA-4.0+
 # SPDX-FileCopyrightText: 2020-2025 gucci-on-fleek and Voidless7125
-*.exe
-*.obj
-*.lib
-*.exp
-*.pdb
 *.dll
-test-*
+*.exe
+*.exp
+*.lib
+*.log
+*.obj
+*.pdb
 build/**
-runtime_directory/Sandbox.wsb
 runtime_directory/Sandbox-with-Microphone-Camera.wsb
+runtime_directory/Sandbox.wsb
+test-*

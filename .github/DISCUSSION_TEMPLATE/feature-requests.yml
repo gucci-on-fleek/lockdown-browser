@@ -1,0 +1,45 @@
+# Lockdown Browser in Windows Sandbox
+# https://github.com/gucci-on-fleek/lockdown-browser
+# SPDX-License-Identifier: MPL-2.0+
+# SPDX-FileCopyrightText: 2020-2025 gucci-on-fleek and Voidless7125
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If this is a bug, please [open a new issue](https://github.com/gucci-on-fleek/lockdown-browser/issues/new?template=bug-report.yml).
+
+        If this is a general question or discussion, please [use the other template](https://github.com/gucci-on-fleek/lockdown-browser/discussions/new?category=q-a).
+
+        Otherwise, please provide as much information as possible, and we'll hopefully be able to implement your requested feature.
+
+  - type: checkboxes
+    attributes:
+      label: Is this a bug?
+      description: >
+        If **any** of the following apply, **do not continue with this form**; instead, [open a new issue](https://github.com/gucci-on-fleek/lockdown-browser/issues/new?template=bug-report.yml):
+
+          - You see an error message at any point (e.g., when running the build script, launching the _Windows Sandbox_, launching the _Lockdown Browser_, etc.).
+
+          - The _Lockdown Browser_ or _Windows Sandbox_ fail to open or crash.
+
+          - You get a message from the _Lockdown Browser_ stating that it's running inside a virtual machine or has detected any other form of tampering.
+
+          - Your webcam or microphone fails to work as expected.
+
+          - You have any other issue that you believe is a bug.
+
+        However, if any of the following apply, then you're in the right place:
+
+          - You would like a new feature to be implemented.
+      options:
+        - label: >
+            I have read the above and confirm that this is **not** a bug.
+          required: true
+
+  - type: textarea
+    attributes:
+      label: Your post
+      description: Type your feature request here. Please be as descriptive as possible.
+    validations:
+      required: true
