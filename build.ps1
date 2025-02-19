@@ -186,11 +186,26 @@ function Get-SystemInfo {
     Write-Log "$vs_setup_complete"
 }
 
+function Build-C {
+    mkdir './build' -Force
+    Push-Location build
+    cl `
+        '/Fe:launch.exe' `
+        '../src/launch.c' `
+        'Kernel32.lib' `
+        'ntdll.lib' `
+        'onecore.lib' `
+        'Shell32.lib' `
+        'User32.lib'
+    Pop-Location
+}
+
 try {
     Write-Log "----------------------------------------"
     Write-Log "Build script started"
     Get-SystemInfo
     Initialize-VS
+    Build-C
     Initialize-Sandbox
     Copy-Files
     Write-Log "Build script completed"

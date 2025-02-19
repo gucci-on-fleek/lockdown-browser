@@ -108,7 +108,7 @@ function Register-URLProtocol {
     Write-Log "Registering URL protocol(s)..."
     New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
     foreach ($protocol in $protocols) {
-        Set-ItemProperty -Path "HKCR:\$protocol\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\withdll.exe" "/d:' + $PSScriptRoot + '\GetSystemMetrics-Hook.dll" ' + $lockdown_runtime + ' "%1"')
+        Set-ItemProperty -Path "HKCR:\$protocol\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\launch.exe" ' + $lockdown_runtime + ' "%1"')
         Write-Log "Successfully set item property for URL protocol $protocol."
     }
 }
@@ -120,13 +120,13 @@ function New-RunLockdownBrowserScript {
         $script_content = @'
 $url = Read-Host -Prompt "Please enter the URL"
 Set-Location "C:\Users\WDAGUtilityAccount\Desktop\runtime_directory"
-./withdll /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe" $url
+./launch.exe "C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe" $url
 '@
     }
     else {
         $script_content = @"
 Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
-.\withdll.exe /d:GetSystemMetrics-Hook.dll "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
+.\launch.exe "C:\Program Files (x86)\Respondus\LockDown Browser\LockDownBrowser.exe"
 "@
     }
     $script_path = Join-Path -Path $desktop_path -ChildPath "Run-LockdownBrowser.ps1"
@@ -179,7 +179,7 @@ Set-Location C:\Users\WDAGUtilityAccount\Desktop\runtime_directory\
     if ($result -eq [System.Windows.Forms.DialogResult]::Yes) {
         if ($is_oem) {
             # URL is from https://github.com/gucci-on-fleek/lockdown-browser/issues/43.
-            Start-Process "powershell.exe" -ArgumentList "-Command `"Set-Location 'C:\Users\WDAGUtilityAccount\Desktop\runtime_directory'; ./withdll /d:GetSystemMetrics-Hook.dll 'C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe' 'ldb:dh%7BKS6poDqwsi1SHVGEJ+KMYaelPZ56lqcNzohRRiV1bzFj3Hjq8lehqEug88UjowG1mK1Q8h2Rg6j8kZQX0FdyA==%7D'`""
+            Start-Process "powershell.exe" -ArgumentList "-Command `"Set-Location 'C:\Users\WDAGUtilityAccount\Desktop\runtime_directory'; ./launch.exe 'C:\Program Files (x86)\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe' 'ldb:dh%7BKS6poDqwsi1SHVGEJ+KMYaelPZ56lqcNzohRRiV1bzFj3Hjq8lehqEug88UjowG1mK1Q8h2Rg6j8kZQX0FdyA==%7D'`""
         }
         else {
             Start-Process "powershell.exe" -ArgumentList "-File `"$script_path`""
