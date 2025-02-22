@@ -148,8 +148,10 @@ function Get-SystemInfo {
         Get-ChildItem -Path "./logs" -Filter *.log | Sort-Object Name | ForEach-Object {
             Add-Content -Path $all_logs_path -Value "=== $($_.Name) ==="
             Add-Content -Path $all_logs_path -Value ""
+            Add-Content -Path $all_logs_path -Value ""
             Get-Content $_.FullName | Add-Content -Path $all_logs_path
-            Add-Content -Path $all_logs_path -Value "\n\n"
+            Add-Content -Path $all_logs_path -Value ""
+            Add-Content -Path $all_logs_path -Value ""
         }
         Write-Log "Logs put in one file to $all_logs_path"
         Read-Host "Press Enter to exit"
