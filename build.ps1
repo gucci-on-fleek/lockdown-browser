@@ -26,59 +26,6 @@ function Write-Log {
     $log_message | Out-File -FilePath $log_file_path -Append -Encoding UTF8
 }
 
-if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-    Write-Log "Error: git is not installed or not available in the system's PATH"
-    throw "git is not installed or not available in the system's PATH"
-}
-
-# If removal flag -Clean is passed, check for the .git folder; if missing, delete specified files.
-if ($Clean) {
-    Write-Log "Removal flag specified (-Clean): Checking for .git folder."
-    $git_folder = Join-Path $PSScriptRoot ".git"
-    if (-not (Test-Path $git_folder)) {
-        Write-Log ".git folder is missing. Deleting specified build files."
-        $files_to_delete = @(
-            "runtime_directory\GetSystemMetrics-Hook.dll",
-            "runtime_directory\sandbox.wsb",
-            "runtime_directory\sandbox-with-Microphone-Camera.wsb",
-            "runtime_directory\withdll.exe",
-            "\Detours",
-            "\Build"
-        )
-        foreach ($relative_path in $files_to_delete) {
-            $file_path = Join-Path $PSScriptRoot $relative_path
-            if (Test-Path $file_path) {
-                Remove-Item $file_path -Force
-                Write-Log "Deleted file: $file_path"
-            }
-            else {
-                Write-Log "File not found, skipping deletion: $file_path"
-            }
-        }
-    }
-    else {
-        git clean -xd -f --exclude='Lockdown*.exe' --exclude='logs'
-    }
-    Write-Log "Deletion complete."
-}
-
-# If the log flag (-Logs) is passed, combine all logs into a single file.
-if ($Logs) {
-    Write-Log "Logs being put in one file as requested by -logs flag"
-    $all_logs_path = Join-Path $PSScriptRoot "logs/all-logs.log"
-    if (Test-Path $all_logs_path) {
-        Remove-Item $all_logs_path -Force
-    }
-    Get-ChildItem -Path "./logs" -Filter *.log | Sort-Object Name | ForEach-Object {
-        Add-Content -Path $all_logs_path -Value "=== $($_.Name) ==="
-        Add-Content -Path $all_logs_path -Value ""
-        Get-Content $_.FullName | Add-Content -Path $all_logs_path
-        Add-Content -Path $all_logs_path -Value "\n\n"
-    }
-    Write-Log "Logs put in one file to $all_logs_path"
-    exit
-}
-
 function Initialize-VS {
     Write-Log "Initializing Visual Studio environment"
     Import-Module VSSetup
@@ -175,6 +122,41 @@ function Copy-Files {
 
 function Get-SystemInfo {
     Write-Log "Selected system information:"
+
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+        throw "git is not installed or not available in the system's PATH"
+    }
+
+    if (-not (Test-Path -Path "$PSScriptRoot\.git")) {
+        throw ".git folder not found in the directory"
+    }
+
+    # If removal flag -Clean is passed, check for the .git folder; if missing, delete specified files.
+    if ($Clean) {
+        Write-Log "Removal flag specified (-Clean):"
+        git clean -xd -f --exclude='Lockdown*.exe' --exclude='logs'
+        Write-Log "Deletion complete."
+    }
+
+    # If the log flag (-Logs) is passed, combine all logs into a single file.
+    if ($Logs) {
+        Write-Log "Logs being put in one file as requested by -logs flag"
+        $all_logs_path = Join-Path $PSScriptRoot "logs/all-logs.log"
+        if (Test-Path $all_logs_path) {
+            Remove-Item $all_logs_path -Force
+        }
+        Get-ChildItem -Path "./logs" -Filter *.log | Sort-Object Name | ForEach-Object {
+            Add-Content -Path $all_logs_path -Value "=== $($_.Name) ==="
+            Add-Content -Path $all_logs_path -Value ""
+            Add-Content -Path $all_logs_path -Value ""
+            Get-Content $_.FullName | Add-Content -Path $all_logs_path
+            Add-Content -Path $all_logs_path -Value ""
+            Add-Content -Path $all_logs_path -Value ""
+        }
+        Write-Log "Logs put in one file to $all_logs_path"
+        Read-Host "Press Enter to exit"
+        exit
+    }
     $os = Get-CimInstance Win32_OperatingSystem
     Write-Log "Architecture: $($os.OSArchitecture)"
     Write-Log "Windows Version: $($os.Caption)"
@@ -241,6 +223,5 @@ try {
 catch {
     Write-Log "An error occurred: $($_.Exception.Message) - $($_.Exception.StackTrace)"
     Set-Location $PSScriptRoot  # Put you back rather than random places in the script. -Voidless7125
-    throw
-    pause
+    Read-Host "Press Enter to exit"
 }

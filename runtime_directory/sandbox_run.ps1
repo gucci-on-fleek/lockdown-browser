@@ -24,33 +24,11 @@ function Write-Log {
 
 # Check if running as WDAGUtilityAccount (Sandbox)
 if ($env:USERNAME -ne "WDAGUtilityAccount") {
-    throw "This script is intended to run only in Windows Sandbox. Exiting..."
-    pause
+    Read-Host -Prompt "This script is intended to run only in Windows Sandbox. Press enter to exit."
+    exit
 }
 
 Set-Location $PSScriptRoot
-
-$lockdown_extract_dir = "C:\Windows\Temp\Lockdown"
-$lockdown_installer = Get-ChildItem *LockDown*.exe | Select-Object -First 1
-if (-not $lockdown_installer) {
-    Write-Log "No Lockdown installer found in the current directory."
-    [System.Windows.Forms.MessageBox]::Show("No Lockdown installer found in the current directory. This has been logged into the logs folder on the host.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-    throw "No Lockdown installer found in the current directory. Exiting..."
-}
-elseif ($lockdown_installer.Name -like "LockDownBrowser-*.exe") {
-    $is_oem = $false
-    $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser\LockDownBrowser.exe"
-    $browser_icon = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser\LockDownBrowser.ico"
-    $protocols = @("rldb")
-
-}
-else {
-    $is_oem = $true
-    $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe"
-    $browser_icon = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser OEM\LockDownBrowser.ico"
-    # I got the urls from installing LDB OEM and looking in the registry for :Lockdown Browser OEM and found all these HKCR keys.
-    $protocols = @("anst", "cllb", "ibz", "ielb", "jnld", "jzl", "ldb", "ldb1", "pcgs", "plb", "pstg", "rzi", "uwfb", "xmxg")
-}
 
 function Remove-SystemInfo {
     Write-Log "Removing system information..."
@@ -191,6 +169,28 @@ try {
     # Functions in PowerShell are supposed to be like this, just learned.
     Write-Log "----------------------------------------"
     Write-Log "Script started."
+    $lockdown_extract_dir = "C:\Windows\Temp\Lockdown"
+    $lockdown_installer = Get-ChildItem *LockDown*.exe | Select-Object -First 1
+
+    if (-not $lockdown_installer) {
+        Write-Log "No Lockdown installer found in the current directory."
+        [System.Windows.Forms.MessageBox]::Show("No Lockdown installer found in the current directory. This has been logged into the logs folder on the host.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        throw "No Lockdown installer found in the current directory. Exiting..."
+    }
+    elseif ($lockdown_installer.Name -like "LockDownBrowser-*.exe") {
+        $is_oem = $false
+        $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser\LockDownBrowser.exe"
+        $browser_icon = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser\LockDownBrowser.ico"
+        $protocols = @("rldb")
+
+    }
+    else {
+        $is_oem = $true
+        $lockdown_runtime = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser OEM\LockDownBrowserOEM.exe"
+        $browser_icon = [System.Environment]::GetFolderPath("ProgramFilesX86") + "\Respondus\LockDown Browser OEM\LockDownBrowser.ico"
+        # I got the urls from installing LDB OEM and looking in the registry for :Lockdown Browser OEM and found all these HKCR keys.
+        $protocols = @("anst", "cllb", "ibz", "ielb", "jnld", "jzl", "ldb", "ldb1", "pcgs", "plb", "pstg", "rzi", "uwfb", "xmxg")
+    }
     Remove-SystemInfo
     Install-LockdownBrowser
     Register-URLProtocol
