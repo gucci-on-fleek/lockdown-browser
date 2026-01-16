@@ -1,7 +1,7 @@
 <!-- Lockdown Browser in Windows Sandbox
      https://github.com/gucci-on-fleek/lockdown-browser
      SPDX-License-Identifier: MPL-2.0+ OR CC-BY-SA-4.0+
-     SPDX-FileCopyrightText: 2020-2025 gucci-on-fleek and Voidless7125
+     SPDX-FileCopyrightText: 2020-2026 gucci-on-fleek and Voidless7125
 -->
 # _Lockdown Browser_ in _Windows Sandbox_
 
@@ -10,6 +10,321 @@
 ## What is this?
 
 This repo allows you to run the [_Respondus Lockdown Browser_](https://web.respondus.com/he/lockdownbrowser/) in an isolated sandbox, completely bypassing its “security measures.” Usually, the Lockdown Browser blocks you from running it if it detects that it is being virtualized. However, this tool bypasses the detection, allowing us to virtualize it.
+
+## Project Status
+
+### 2026-01-16
+
+#### Technical Comments
+
+Sometime in [February
+2025](https://github.com/gucci-on-fleek/lockdown-browser/issues/132), we
+began receiving reports that the _Lockdown Browser_ was detecting the
+tool in this repository. Respondus rolls out updates fairly slowly, so
+this did not affect most users at first, but around [May
+2025](https://github.com/gucci-on-fleek/lockdown-browser/issues/152),
+most users had received the update, and were therefore detected if they
+used this tool. Detection is
+[often](https://github.com/gucci-on-fleek/lockdown-browser/issues/176)
+followed by a [permanent
+ban](https://github.com/gucci-on-fleek/lockdown-browser/issues/157), so
+although there is a _chance_ that this tool might still work, it would
+be quite risky to try.
+
+As mentioned in the previous update below, I have little time or ability
+to continue working on this project, so it is relatively unlikely that I
+myself will update this repository to work with the latest versions of
+the _Lockdown Browser_. Nevertheless, I will continue to intermittently
+reply to
+[issues](https://github.com/gucci-on-fleek/lockdown-browser/issues) and
+[discussions](https://github.com/gucci-on-fleek/lockdown-browser/discussions),
+and I will _gladly_ accept any [pull
+requests](https://github.com/gucci-on-fleek/lockdown-browser/pulls) that
+help improve this project. Please follow [issue
+#132](https://github.com/gucci-on-fleek/lockdown-browser/issues/132) if
+you are interested on status updates regarding support for newer
+versions of the _Lockdown Browser_.
+
+#### Non-Technical Comments
+
+This project isn't dead, but—barring someone contributing a patch—it's
+probably finished. I'd like to thank all the contributors over the
+years: [@shirt-dev](https://github.com/shirt-dev),
+[@mayed505](https://github.com/mayed505),
+[@dustindog101](https://github.com/dustindog101), and especially
+[@Voidless7125](https://github.com/Voidless7125). Somewhat ironically, I
+would also like to thank Respondus—I strongly disagree with how their
+software operates and their stance on privacy, but when they found out
+about this tool, [instead of responding aggressively like some of
+their
+competitors](https://arstechnica.com/tech-policy/2025/11/proctorio-settles-curious-lawsuit-with-librarian-who-shared-public-youtube-videos/),
+they simply patched their own software.
+
+Finally, as a note to any non-programmers who may be reading this, I
+would like to point out that this project has _never_ provided
+ready-to-install binary releases; instead, it has [always required users
+to download the source
+code](https://github.com/gucci-on-fleek/lockdown-browser#license), which
+they can then use [to create a usable version of the software
+themselves](https://github.com/gucci-on-fleek/lockdown-browser#system-requirements).
+I did this for three reasons:
+
+1. First, to ensure that users would be able to inspect the source
+   themselves, therefore allowing them to confirm that this tool
+   functions as documented. This is the opposite of the _Lockdown
+   Browser_, where users have no way to verify that the software works
+   as advertised, and must therefore trust Respondus.
+
+2. Second, my goal in releasing this repository was to show that the
+   _Lockdown Browser_ was ineffective. Proponents of the _Browser_ argue
+   that it's justified to trade reduced privacy for increased security,
+   but if the _Browser_ is ineffective, then there is no trade-off;
+   you're just sacrificing privacy for no benefit. It is important to
+   publicly release the source so that anyone can reproduce this bypass
+   to demonstrate the _Browser_'s poor security, but as I never
+   intended for anyone to use this tool to cheat, it merely needs to be
+   _possible_ to reproduce the bypass, not easy.
+
+3. Finally, I wrote the original implementation in a single day, and
+   this original implementation was only a little more than 100 lines of
+   code; my belief was that nearly anyone capable of installing a C
+   compiler and compiling this software would be able to independently
+   reproduce this bypass, with only a few hours of work, merely by
+   reading the three paragraph [“How does it work?”
+   section](https://github.com/gucci-on-fleek/lockdown-browser#technical-details-how-does-it-work)
+   below.
+
+### 2024-02-10
+
+The following was originally posted in [Discussion
+#53](https://github.com/gucci-on-fleek/lockdown-browser/discussions/53);
+the technical details are no longer relevant and have been elided here,
+but the overall background still stands.
+
+> \[…]
+>
+> #### Background
+>
+> Back when <ac>COVID</ac> first hit, some of my professors began to
+> mandate that we use _Respondus Lockdown Browser_ and _Respondus Monitor_
+> to write our exams. I was incensed that we were required to install this
+> invasive software on our personal computers and submit to being recorded
+> by some random company, with no option to opt-out. I argued with my
+> professors that this requirement was both unnecessary and unethical, but
+> they refused to budge.
+>
+> I proceeded to submit [a formal
+> complaint](https://github.com/gucci-on-fleek/lockdown-browser/files/14229105/respondus-concerns-redacted.pdf)
+> to the administration, and after a protracted series of emails, they
+> eventually offered an alternative, and having no other options, I
+> accepted. But this alternate writing method was fairly arduous: before
+> each exam, I would drive to the campus, check out a laptop, and drive
+> back home. On my personal laptop, I would start a video call with my
+> professor who would watch me while I wrote the exam; on the campus
+> laptop, I would use the _Lockdown Browser_ (without _Monitor_) to take
+> the exam. Once I was finished, I would drive back to campus to return
+> the laptop. And furthermore, I was the only student who was allowed to
+> use this method—everyone else was still required to use _Respondus
+> Monitor_.
+>
+>
+> #### Development
+>
+> So then why did I decide to write this project?
+>
+> 1.  To show that the _Browser_ is ineffective.
+>
+>     All of my complaints were ignored because the university considers
+>     “preventing cheating” to be more important than the privacy of its
+>     students. But if the _Browser_ were shown as being completely
+>     useless, then the university would have no reason to continue using
+>     it.
+>
+> 2.  Help honest students protect their privacy.
+>
+>     Not all students were as lucky as I was to be offered an alternative
+>     writing method. I released this project to help the students who
+>     legitimately care about their privacy to partially alleviate some of
+>     the _Browser_'s flaws.
+>
+>     Of course, it is certainly possible to use this project to cheat on
+>     exams, but you could say that about nearly any technology. The mere
+>     _possibility_ of cheating is not a valid reason to invade the
+>     privacy of every student.
+>
+>
+> #### Present Day
+>
+> Four years ago, I started this project. It has now been three years
+> since I transferred to a different university that does not use any
+> invasive monitoring software, and two years since I have had any access
+> to a computer that runs _Windows_.
+>
+> What does this mean for the project? It means that I have little
+> motivation or ability to make any significant updates to it. I do try to
+> reply to
+> [issues](https://github.com/gucci-on-fleek/lockdown-browser/issues) and
+> [discussions](https://github.com/gucci-on-fleek/lockdown-browser/discussions)
+> whenever possible, but I've been quite slow at responding for this past
+> year since I've been busy with other things. I tend to respond quicker
+> to [pull
+> requests](https://github.com/gucci-on-fleek/lockdown-browser/pulls)
+> though.
+>
+>
+> #### Future
+>
+> \[…]
+>
+> So what comes next? Well, it's up to you. If you're able to find a way
+> to patch around the _Browser_'s upcoming update, then [submit a pull
+> request](https://github.com/gucci-on-fleek/lockdown-browser/pulls).
+> Otherwise, you'll need to wait for someone else to do so.
+>
+> #### Links
+>
+> - [“Federal Judge: Invasive Online Proctoring "Room Scans" Are
+>   Unconstitutional”,
+>   EFF](https://www.eff.org/deeplinks/2022/08/federal-judge-invasive-online-proctoring-room-scans-are-also-unconstitutional)
+>
+> - [“After Students Challenged Proctoring Software, French Court Slaps
+>   TestWe App With a Suspension”,
+>   EFF](https://www.eff.org/deeplinks/2023/03/after-students-challenged-proctoring-software-french-court-slaps-testwe-app)
+>
+> - [“A Long Overdue Reckoning For Online Proctoring Companies May Finally
+>   Be Here”,
+>   EFF](https://www.eff.org/deeplinks/2021/06/long-overdue-reckoning-online-proctoring-companies-may-finally-be-here)
+>
+> - [“The Security Failures of Online Exam Proctoring”, Schneier on
+>   Security](https://www.schneier.com/blog/archives/2020/11/the-security-failures-of-online-exam-proctoring.html)
+>
+> - [“The extremely shady "educational integrity" industry”, Cory
+>   Doctorow](https://pluralistic.net/2022/02/16/unauthorized-paper/#cheating-anticheat)
+>
+> - [“The pandemic showed remote proctoring to be worse than useless”,
+>   Cory
+>   Doctorow](https://pluralistic.net/2021/06/24/proctor-ology/#miseducation)
+>
+> - [“Can You Trust Your Computer?”, Richard
+>   Stallman](https://www.gnu.org/philosophy/can-you-trust.html)
+>
+> - [“The Right to Read”, Richard
+>   Stallman](https://www.gnu.org/philosophy/right-to-read.html))
+
+## Timeline
+
+<dl>
+<dt>
+
+2020-11-27, 11am
+
+<dd>
+
+I initially begin investigating how to bypass the _Lockdown Browser_'s
+restrictions.
+
+<dt>
+
+[2020-11-27, 11pm](https://github.com/gucci-on-fleek/lockdown-browser/commit/69e28fc9d14f26a32ffae7d3210342894b518a90)
+
+<dd>
+
+I finished writing the initial proof-of-concept. The tool is fully
+functional at this point, although the documentation and build scripts
+aren't very polished yet. Nevertheless, even today, the repository uses
+the same technique used to bypass the _Browser_'s restrictions as [this
+initial
+release](https://github.com/gucci-on-fleek/lockdown-browser/tree/69e28fc9d14f26a32ffae7d3210342894b518a90).
+
+<dt>
+
+[2021-11-27](https://github.com/gucci-on-fleek/lockdown-browser/commit/190df3ccb6ffdef948c3b99ff3671c3bb1058aa1)
+
+<dd>
+
+The repository is released to the public.
+
+<dt>
+
+[2022-03-24](https://github.com/gucci-on-fleek/lockdown-browser/pull/2)
+
+<dd>
+
+I accept the first contribution from an external contributor.
+
+<dt>
+
+[2022-12-08](https://web.archive.org/web/20221208051901/https://github.com/gucci-on-fleek/lockdown-browser)
+
+<dd>
+
+The earliest version of the repository available from the Internet
+Archive.
+
+<dt>
+
+[2024-02-10](https://github.com/gucci-on-fleek/lockdown-browser/discussions/53)
+
+<dd>
+
+The repository is linked to from Respondus's internal bug tracker.
+
+<dt>Summer 2024
+
+<dd>
+
+The repository now has [100+ stars on
+GitHub](https://www.star-history.com/#gucci-on-fleek/lockdown-browser)
+and the [77th support request was
+opened](https://github.com/gucci-on-fleek/lockdown-browser/issues/77).
+
+<dt>
+
+[2025-01-17](https://github.com/gucci-on-fleek/lockdown-browser/pull/84)
+
+<dd>
+
+[@Voidless7125](https://github.com/Voidless7125)'s first contribution is
+accepted. He handles most of the support requests and contributes the
+vast majority of the new code over the next year. (Thanks!)
+
+<dt>
+
+[February 2025](https://github.com/gucci-on-fleek/lockdown-browser/issues/132)
+
+<dd>
+
+Respondus releases their first update that detects and blocks this tool.
+However, Respondus rolls out updates slowly, so most users are still
+unaffected.
+
+<dd>
+
+[2025-04-30](https://github.com/gucci-on-fleek/lockdown-browser/issues/170)
+
+A user confirms that Respondus is aware of this repository.
+
+<dt>
+
+[May 2025](https://github.com/gucci-on-fleek/lockdown-browser/issues/152)
+
+<dd>
+
+The update has rolled out to most users, so this tool no longer works
+for most users.
+
+<dt>
+
+2026-01-16
+
+<dd>
+
+This repository has received a total of [259
+stars](https://github.com/gucci-on-fleek/lockdown-browser/stargazers)
+and [180 support
+requests](https://github.com/gucci-on-fleek/lockdown-browser/discussions/180).
+
+</dl>
 
 ## Why the _Lockdown Browser_ is bad
 
@@ -53,9 +368,7 @@ Also, I’d like to point out that Respondus has explicitly granted permission f
 
 - [Visual Studio C++ Tools](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools)
 
- (Make sure to include the “MSVC C++ build tools” and “Windows SDK” components.)
-
-  ![Visual Studio installer screenshot](docs/Visual_Studio_Installer.png)
+  (Make sure to include the “MSVC C++ build tools” and “Windows SDK” components.)
 
 - [git](https://git-scm.com/download/win)
 
