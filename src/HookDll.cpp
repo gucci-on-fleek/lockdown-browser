@@ -7,6 +7,7 @@
  */
 
 #include <windows.h>
+#include <string.h>
 
 /* ── original function pointers ────────────────────────────────────── */
 

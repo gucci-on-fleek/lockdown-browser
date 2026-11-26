@@ -108,7 +108,7 @@ function Register-URLProtocol {
     Write-Log "Registering URL protocol(s)..."
     New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
     foreach ($protocol in $protocols) {
-        Set-ItemProperty -Path "HKCR:\$protocol\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\launch.exe" ' + $lockdown_runtime + ' "%1"')
+        Set-ItemProperty -Path "HKCR:\$protocol\shell\open\command" -Name "(Default)" -Value ('"' + $PSScriptRoot + '\launch.exe" "' + $lockdown_runtime + '" "%1"')
         Write-Log "Successfully set item property for URL protocol $protocol."
     }
 }
