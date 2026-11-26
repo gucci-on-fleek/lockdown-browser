@@ -47,8 +47,50 @@ static void print_error_message(DWORD error)
     printf("Message: %ls\n", lpMsgBuf);
 }
 
+static void inject_hook_dll(HANDLE hProcess)
+{
+    WCHAR dllPath[MAX_PATH];
+    GetModuleFileNameW(NULL, dllPath, MAX_PATH);
+
+    WCHAR *lastSlash = wcsrchr(dllPath, L'\\');
+    if (!lastSlash)
+        return;
+    wcscpy_s(lastSlash + 1, MAX_PATH - (DWORD)(lastSlash - dllPath + 1),
+             L"HookDll.dll");
+
+    if (GetFileAttributesW(dllPath) == INVALID_FILE_ATTRIBUTES)
+        return;
+
+    SIZE_T pathBytes = (wcslen(dllPath) + 1) * sizeof(WCHAR);
+    LPVOID remoteBuf = VirtualAllocEx(hProcess, NULL, pathBytes,
+                                      MEM_COMMIT | MEM_RESERVE,
+                                      PAGE_READWRITE);
+    if (!remoteBuf)
+        return;
+
+    if (!WriteProcessMemory(hProcess, remoteBuf, dllPath, pathBytes, NULL))
+    {
+        VirtualFreeEx(hProcess, remoteBuf, 0, MEM_RELEASE);
+        return;
+    }
+
+    FARPROC pLoadLib = GetProcAddress(GetModuleHandleW(L"kernel32.dll"),
+                                      "LoadLibraryW");
+    HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0,
+                                        (LPTHREAD_START_ROUTINE)pLoadLib,
+                                        remoteBuf, 0, NULL);
+    if (hThread)
+    {
+        WaitForSingleObject(hThread, 10000);
+        CloseHandle(hThread);
+    }
+
+    VirtualFreeEx(hProcess, remoteBuf, 0, MEM_RELEASE);
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR _lpCmdLine, int nCmdShow)
 {
+    (void)hInstance;
     (void)hPrevInstance;
     (void)_lpCmdLine;
     (void)nCmdShow;
@@ -64,6 +106,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR _lpCmdLin
     const LPWSTR lpNewCmdLine = lpCmdLine + lstrlenW(lpThisApplicationName) + (quoted ? 2 : 0) + 1;
 
     STARTUPINFOW lpStartupInfo = {0};
+    lpStartupInfo.cb = sizeof(lpStartupInfo);
     PROCESS_INFORMATION lpCreateProcessInformation;
     win32_checked(CreateProcessW(
         lpTargetApplicationName,
@@ -77,6 +120,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR _lpCmdLin
         &lpStartupInfo,
         &lpCreateProcessInformation));
 
+    /* Layer 1: Patch PEB.SessionId so the process thinks it is on the
+       physical console session, not an RDP / sandbox session. */
     PROCESS_BASIC_INFORMATION lpGetProcessInformation;
     nt_checked(NtQueryInformationProcess(
         lpCreateProcessInformation.hProcess,
@@ -102,7 +147,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR _lpCmdLin
         sizeof(lpGetProcessEnvironmentBlock),
         NULL));
 
+    /* Layer 2: If HookDll.dll is present next to this exe, inject it.
+       The DLL patches the IAT so GetSystemMetrics and GetProcAddress
+       return consistent values even if LDB resolves them dynamically. */
+    inject_hook_dll(lpCreateProcessInformation.hProcess);
+
     win32_checked(ResumeThread(lpCreateProcessInformation.hThread) != -1);
+
+    WaitForSingleObject(lpCreateProcessInformation.hProcess, INFINITE);
+    CloseHandle(lpCreateProcessInformation.hThread);
+    CloseHandle(lpCreateProcessInformation.hProcess);
 
     return 0;
 }

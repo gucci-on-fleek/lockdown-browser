@@ -128,6 +128,8 @@ function Copy-Files {
     Push-Location runtime_directory
     Copy-Item ../build/Sandbox.wsb .
     Copy-Item ../build/Sandbox-with-Microphone-Camera.wsb .
+    Copy-Item ../build/launch.exe .
+    Copy-Item ../build/HookDll.dll .
     Pop-Location
     Write-Log "Files copied to runtime directory"
 }
@@ -189,6 +191,8 @@ function Get-SystemInfo {
 function Build-C {
     mkdir './build' -Force
     Push-Location build
+
+    Write-Log "Building launch.exe ..."
     cl `
         '/Fe:launch.exe' `
         '../src/launch.c' `
@@ -197,6 +201,14 @@ function Build-C {
         'onecore.lib' `
         'Shell32.lib' `
         'User32.lib'
+
+    Write-Log "Building HookDll.dll (IAT-patch hook) ..."
+    cl /nologo /EHsc /O2 /LD `
+        '/Fe:HookDll.dll' `
+        '../src/HookDll.cpp' `
+        '/link' '/nodefaultlib:oldnames.lib' `
+        'user32.lib' 'kernel32.lib'
+
     Pop-Location
 }
 
